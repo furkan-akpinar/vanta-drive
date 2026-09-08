@@ -1,9 +1,15 @@
 'use client';
 
 import Link from 'next/link';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Grid2X2, List, SlidersHorizontal, X } from 'lucide-react';
-import { readTrip, displayDateTime, tripParams } from '@/lib/booking';
+import {
+  readTrip,
+  displayDateTime,
+  tripParams,
+  tripNotice,
+} from '@/lib/booking';
 import {
   readFilters,
   filterVehicles,
@@ -12,7 +18,6 @@ import {
   priceBounds,
   type Filters,
 } from '@/lib/catalog';
-import { useHydrated } from '@/hooks/use-hydrated';
 import { VehicleCard } from './vehicle-card';
 import { FilterControls, SortControl } from './catalog-controls';
 import {
@@ -26,20 +31,53 @@ import {
 } from './ui/drawer';
 
 export function VehicleCatalog() {
-  const hydrated = useHydrated();
-  const router = useRouter();
   const params = useSearchParams();
   const q = new URLSearchParams(params.toString());
   const filters = readFilters(q);
   const view = q.get('view') === 'list' ? 'list' : 'grid';
   const trip = readTrip(q);
+  const [searchDraft, setSearchDraft] = useState({
+    query: filters.search,
+    value: filters.search,
+  });
+  // Discard the previous typing draft when history changes the committed query.
+  if (searchDraft.query !== filters.search)
+    setSearchDraft({ query: filters.search, value: filters.search });
+  const search =
+    searchDraft.query === filters.search ? searchDraft.value : filters.search;
+  const setSearch = (value: string) =>
+    setSearchDraft({ query: filters.search, value });
+  const pending = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const latest = useRef(q.toString());
+  useEffect(() => {
+    latest.current = params.toString();
+    return () => clearTimeout(pending.current);
+  }, [params]);
+  useEffect(() => () => clearTimeout(pending.current), []);
   function navigate(next: URLSearchParams, replace = false) {
-    router[replace ? 'replace' : 'push']('/araclar?' + next.toString(), {
-      scroll: false,
-    });
+    // Vinext synchronizes useSearchParams with native history writes. Local
+    // filtering keeps the focused control mounted; direct URLs still render on the server.
+    latest.current = next.toString();
+    window.history[replace ? 'replaceState' : 'pushState'](
+      null,
+      '',
+      '/araclar?' + next.toString(),
+    );
   }
   const set = <K extends keyof Filters>(key: K, value: Filters[K]) => {
-    const p = new URLSearchParams(params.toString());
+    clearTimeout(pending.current);
+    const p = new URLSearchParams(latest.current);
+    if (search.trim()) p.set('q', search.trim().replace(/\s+/g, ' '));
+    else p.delete('q');
+    if (key === 'location') {
+      if (value) {
+        p.set('pickup', String(value));
+        if (trip.pickup === trip.dropoff) p.set('dropoff', String(value));
+      } else {
+        p.delete('pickup');
+        p.delete('dropoff');
+      }
+    }
     if (key === 'price') {
       const range = value as [number, number];
       p.set('min', String(range[0]));
@@ -59,24 +97,28 @@ export function VehicleCatalog() {
     navigate(p, key === 'price' || key === 'search');
   };
   const clear = () => {
-    const p = new URLSearchParams(params.toString());
-    [...Object.values(filterKeys), 'min', 'max', 'musait', 'q', 'sort'].forEach(
-      (k) => p.delete(k),
-    );
+    clearTimeout(pending.current);
+    setSearch('');
+    const p = new URLSearchParams(latest.current);
+    [
+      ...Object.values(filterKeys).filter((k) => k !== 'lokasyon'),
+      'min',
+      'max',
+      'musait',
+      'q',
+      'sort',
+    ].forEach((k) => p.delete(k));
     navigate(p);
   };
   const setView = (value: string) => {
-    const p = new URLSearchParams(params.toString());
+    clearTimeout(pending.current);
+    const p = new URLSearchParams(latest.current);
+    if (search.trim()) p.set('q', search.trim().replace(/\s+/g, ' '));
+    else p.delete('q');
     p.set('view', value);
     navigate(p);
   };
   const filtered = filterVehicles(filters);
-  if (!hydrated)
-    return (
-      <div className="empty-state">
-        <p>Filo hazırlanıyor.</p>
-      </div>
-    );
   const active = [
     ...(filters.search
       ? [{ key: 'search' as const, label: filters.search }]
@@ -113,11 +155,16 @@ export function VehicleCatalog() {
   };
   return (
     <>
+      {tripNotice(q, trip) && (
+        <output className="journey-notice">{tripNotice(q, trip)}</output>
+      )}
       <div className="trip-summary">
         <div>
           <span>SEYAHATİNİZ</span>
           <b>
-            {trip.pickup} → {trip.dropoff}
+            {filters.location
+              ? `${trip.pickup} → ${trip.dropoff}`
+              : 'Tüm teslimat noktaları'}
           </b>
           <p>
             {displayDateTime(trip.from)} — {displayDateTime(trip.to)}
@@ -126,15 +173,32 @@ export function VehicleCatalog() {
         <Link href={'/?' + tripParams(trip) + '#booking'}>
           Tarihleri değiştir
         </Link>
-        <small>Müsaitlik ve fiyatlar portföy demosu verileridir.</small>
+        <small>
+          Türkiye saati (UTC+03:00).{' '}
+          {filters.location
+            ? 'Araçlar teslim alma noktasına göre listelenir.'
+            : 'Lokasyon filtresiyle teslim alma noktanızı seçin; detayda araca uygun noktalar gösterilir.'}{' '}
+          Müsaitlik ve fiyatlar örnek veridir.
+        </small>
       </div>
       <label className="catalog-search">
         MARKA / MODEL ARA
         <input
           type="search"
           placeholder="Örn. Porsche, i7, Range Rover"
-          value={filters.search}
-          onChange={(e) => set('search', e.target.value)}
+          value={search}
+          onChange={(e) => {
+            const value = e.target.value;
+            setSearch(value);
+            clearTimeout(pending.current);
+            pending.current = setTimeout(() => {
+              const next = new URLSearchParams(latest.current);
+              const normalized = value.trim().replace(/\s+/g, ' ');
+              if (normalized) next.set('q', normalized);
+              else next.delete('q');
+              navigate(next, true);
+            }, 300);
+          }}
         />
       </label>
       <div className="catalog-toolbar">
@@ -148,7 +212,10 @@ export function VehicleCatalog() {
         </div>
         <div className="mobile-tools">
           <Drawer showSwipeHandle>
-            <DrawerTrigger className="mobile-filter">
+            <DrawerTrigger
+              id="catalog-filter-trigger"
+              className="mobile-filter"
+            >
               <SlidersHorizontal /> Filtrele{' '}
               {active.length > 0 && <b>{active.length}</b>}
             </DrawerTrigger>
@@ -163,7 +230,7 @@ export function VehicleCatalog() {
                 </DrawerClose>
               </DrawerHeader>
               <div className="drawer-scroll">
-                <FilterControls filters={filters} set={set} />
+                <FilterControls filters={filters} set={set} scope="mobile" />
               </div>
               <DrawerFooter>
                 <button className="clear-button" onClick={() => clear()}>
@@ -225,7 +292,16 @@ export function VehicleCatalog() {
       </div>
       <div className={`catalog-grid ${view === 'list' ? 'list-view' : ''}`}>
         {filtered.map((v) => (
-          <VehicleCard key={v.slug} vehicle={v} trip={trip} />
+          <VehicleCard
+            key={v.slug}
+            vehicle={v}
+            trip={
+              filters.location
+                ? trip
+                : { ...trip, pickup: v.locations[0], dropoff: v.locations[0] }
+            }
+            catalogQuery={q.toString()}
+          />
         ))}
         {filtered.length === 0 && (
           <div className="empty-state">

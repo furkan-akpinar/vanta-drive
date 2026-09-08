@@ -58,20 +58,73 @@ export const packages = [
   { name: 'Kurumsal', discount: 'Özel teklif', note: '12–36 ay' },
 ];
 export const extras = [
-  { id: 'driver', name: 'Ek sürücü', price: 650, unit: 'gün' },
-  { id: 'child', name: 'Çocuk koltuğu', price: 350, unit: 'gün' },
-  { id: 'cover', name: 'Tam kapsamlı güvence', price: 1450, unit: 'gün' },
+  {
+    id: 'driver',
+    name: 'Ek sürücü',
+    price: 650,
+    unit: 'gün',
+    description: 'Bir ek sürücü; aynı yaş ve ehliyet koşullarına tabi.',
+  },
+  {
+    id: 'child',
+    name: 'Çocuk koltuğu',
+    price: 350,
+    unit: 'gün',
+    description: 'Bir çocuk koltuğu için örnek günlük hizmet.',
+  },
+  {
+    id: 'cover',
+    name: 'Genişletilmiş güvence · demo',
+    price: 1450,
+    unit: 'gün',
+    description:
+      'Hasar sorumluluğu azaltma senaryosu. Gerçek sigorta veya poliçe sağlamaz; yakıt, ceza ve kayıp eşya kapsam dışı varsayılır.',
+  },
   {
     id: 'airport',
     name: 'Havalimanı karşılama',
     price: 1750,
     unit: 'tek sefer',
+    description:
+      'Teslim almada bir terminal karşılama. Uçuş numarası gerekir; canlı uçuş takibi yoktur.',
   },
   {
     id: 'delivery',
     name: 'Adrese araç teslimatı',
     price: 2250,
     unit: 'tek sefer',
+    description:
+      'Seçilen şehirde bir adrese teslim; adres gereklidir. Havalimanı noktalarında sunulmaz.',
   },
-  { id: 'km', name: 'Günlük ek kilometre', price: 950, unit: 'gün' },
+  {
+    id: 'km',
+    name: 'Günlük +100 kilometre',
+    price: 950,
+    unit: 'gün',
+    description:
+      'Her kiralama günü için 100 km ek hak; toplam hak gün sayısıyla çarpılır.',
+  },
+];
+export const chauffeurServices = [
+  {
+    name: 'Havalimanı transferi',
+    description:
+      'Tek yön terminal karşılama senaryosu; canlı uçuş takibi yoktur.',
+    hours: 1,
+  },
+  {
+    name: 'Günlük özel şoför',
+    description: '8 saat / 150 km dahil örnek günlük program.',
+    hours: 8,
+  },
+  {
+    name: 'Etkinlik ve VIP karşılama',
+    description: 'Başlangıç, varış ve süreye göre örnek etkinlik planı.',
+    hours: 3,
+  },
+  {
+    name: 'Saatlik paket',
+    description: 'En az 3 saatlik şehir içi program.',
+    hours: 3,
+  },
 ];

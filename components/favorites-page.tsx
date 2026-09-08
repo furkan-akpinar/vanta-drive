@@ -1,14 +1,13 @@
 'use client';
 // oxlint-disable jsx-a11y/no-noninteractive-tabindex -- The wide comparison is keyboard-scrollable.
 
-import { useState } from 'react';
 import Link from 'next/link';
 import { vehicles } from '@/data/vehicles';
-import { useFavorites } from './favorites';
+import { useFavorites, useComparison } from './favorites';
 import { VehicleCard } from './vehicle-card';
 export function FavoritesPage() {
   const { favorites } = useFavorites();
-  const [compare, setCompare] = useState<string[]>([]);
+  const { compare, setCompare } = useComparison();
   const activeCompare = compare.filter((slug) => favorites.includes(slug));
   const items = vehicles.filter((v) => favorites.includes(v.slug));
   function toggle(slug: string) {
@@ -23,6 +22,10 @@ export function FavoritesPage() {
   const comparing = vehicles.filter((v) => activeCompare.includes(v.slug));
   return (
     <>
+      <output className="comparison-guide">
+        Karşılaştırmak için favorilerinizden 2 veya 3 araç seçin. En fazla üç
+        araç karşılaştırılabilir. Seçili: {activeCompare.length}/3.
+      </output>
       <div className="catalog-grid">
         {items.map((v) => (
           <div key={v.slug}>
@@ -36,7 +39,7 @@ export function FavoritesPage() {
                 }
                 onChange={() => toggle(v.slug)}
               />{' '}
-              Karşılaştırmaya ekle
+              {v.model} karşılaştırmasına ekle
             </label>
           </div>
         ))}
@@ -96,6 +99,23 @@ export function FavoritesPage() {
                   [
                     'KM limiti',
                     (v: (typeof vehicles)[number]) => `${v.kmLimit} km`,
+                  ],
+                  [
+                    'Depozito',
+                    (v: (typeof vehicles)[number]) =>
+                      `₺${v.deposit.toLocaleString('tr-TR')}`,
+                  ],
+                  [
+                    'Minimum yaş',
+                    (v: (typeof vehicles)[number]) => String(v.minAge),
+                  ],
+                  [
+                    'Ehliyet süresi',
+                    (v: (typeof vehicles)[number]) => `${v.licenseYears} yıl`,
+                  ],
+                  [
+                    'Lokasyonlar',
+                    (v: (typeof vehicles)[number]) => v.locations.join(', '),
                   ],
                 ].map(([label, fn]) => (
                   <tr key={label as string}>

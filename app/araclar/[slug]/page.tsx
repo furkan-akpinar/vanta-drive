@@ -3,6 +3,7 @@ import { vehicles } from '@/data/vehicles';
 import { VehicleDetail } from '@/components/vehicle-detail';
 import { VehicleCard } from '@/components/vehicle-card';
 import { Footer } from '@/components/footer';
+import { pageMetadata } from '@/lib/seo';
 export function generateStaticParams() {
   return vehicles.map((v) => ({ slug: v.slug }));
 }
@@ -13,12 +14,16 @@ export function generateMetadata({
 }) {
   return params.then(({ slug }) => {
     const v = vehicles.find((x) => x.slug === slug);
-    return {
-      title: v ? `${v.brand} ${v.model}` : 'Araç',
-      description: v
-        ? `${v.brand} ${v.model} teknik özellikleri ve rezervasyon bilgileri.`
-        : '',
-    };
+    return pageMetadata(
+      '/araclar/' + slug,
+      {
+        title: v ? `${v.brand} ${v.model}` : 'Araç',
+        description: v
+          ? `${v.brand} ${v.model} teknik özellikleri ve rezervasyon bilgileri.`
+          : '',
+      },
+      v?.images[0],
+    );
   });
 }
 export default async function DetailPage({
@@ -34,7 +39,7 @@ export default async function DetailPage({
     .slice(0, 3);
   return (
     <main>
-      <VehicleDetail vehicle={vehicle} />
+      <VehicleDetail key={vehicle.slug} vehicle={vehicle} />
       {similar.length > 0 && (
         <section className="section dark-section">
           <div className="section-head">

@@ -1,3 +1,4 @@
+import { pageMetadata } from '@/lib/seo';
 import { Gauge, Route, ShieldCheck } from 'lucide-react';
 import { HeroVideo } from '@/components/hero-video';
 import { HomeSections } from '@/components/home-sections';
@@ -24,7 +25,7 @@ export default function Home() {
         <div>
           <ShieldCheck />
           <span>
-            <b>7/24</b> yol desteği
+            <b>24 SA</b> minimum kiralama
           </span>
         </div>
       </section>
@@ -33,3 +34,7 @@ export default function Home() {
     </main>
   );
 }
+
+export const metadata = pageMetadata('/', {
+  title: 'Premium Araç Kiralama · Demo',
+});

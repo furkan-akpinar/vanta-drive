@@ -23,7 +23,7 @@ export function ServicePage({
   code: string;
   title: string;
   lead: string;
-  items: { title: string; text: string }[];
+  items: { title: string; text: string; href?: string; action?: string }[];
   image?: string;
   imageAlt?: string;
   heroImage?: string;
@@ -50,6 +50,9 @@ export function ServicePage({
         </span>
         <h1>{title}</h1>
         <p>{lead}</p>
+        <p className="service-demo">
+          Portföy demosu · Hizmetler örnek senaryodur; gerçek talep gönderilmez.
+        </p>
       </header>
       {image && (
         <MediaImage
@@ -57,6 +60,7 @@ export function ServicePage({
           alt={imageAlt || title}
           position="center 58%"
           className="service-hero-image"
+          priority
         />
       )}
       <section className="service-grid">
@@ -68,6 +72,11 @@ export function ServicePage({
               <Icon />
               <h2>{item.title}</h2>
               <p>{item.text}</p>
+              {item.href && (
+                <Link className="button dark-button" href={item.href}>
+                  {item.action || 'Programı dene'} <ArrowRight />
+                </Link>
+              )}
             </article>
           );
         })}

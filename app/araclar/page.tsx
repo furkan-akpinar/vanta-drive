@@ -1,12 +1,13 @@
+import { pageMetadata } from '@/lib/seo';
 import type { Metadata } from 'next';
 import { VehicleCatalog } from '@/components/vehicle-catalog';
 import { Footer } from '@/components/footer';
 import { siteImages, vehicles } from '@/data/vehicles';
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata('/araclar', {
   title: 'Premium Araç Filosu',
   description:
     'VANTA DRIVE premium araç filosunu sınıf, marka, yakıt ve lokasyona göre filtreleyin.',
-};
+});
 export default function VehiclesPage() {
   return (
     <main className="inner-page">

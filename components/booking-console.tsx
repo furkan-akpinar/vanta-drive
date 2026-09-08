@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Search, ArrowUpRight } from 'lucide-react';
 import { DateTimeField, LocationField } from './trip-fields';
+import { focusInvalid } from '@/lib/validation';
 import {
   readTrip,
   minimumPickup,
@@ -29,13 +30,14 @@ export function BookingConsole() {
         ? { to: minimumReturn(value) }
         : {}),
     }));
-    setErrors({});
+    setErrors((e) => ({ ...e, [key]: '' }));
   }
   function submit(e: React.SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
     const next = tripErrors(trip);
     setErrors(next);
     if (!Object.keys(next).length) router.push('/araclar?' + tripParams(trip));
+    else focusInvalid(e.currentTarget);
   }
   return (
     <form
@@ -91,7 +93,8 @@ export function BookingConsole() {
             if (e.target.checked) change('dropoff', trip.pickup);
           }}
         />{' '}
-        Aynı noktaya bırakacağım <span>Minimum kiralama: 24 saat</span>
+        Aynı noktaya bırakacağım{' '}
+        <span>Minimum 24 saat · Türkiye saati (UTC+03:00)</span>
       </label>
     </form>
   );

@@ -13,6 +13,7 @@ import { siteImages } from '@/data/vehicles';
 import { vehicleClasses as classes } from '@/data/classes';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/tabs';
 import { packages } from '@/data/content';
+import { programHref } from '@/lib/booking';
 import { FleetCarousel } from './fleet-carousel';
 import { MediaImage } from './media-image';
 
@@ -110,6 +111,7 @@ export function HomeSections() {
             {packages.map((p, i) => (
               <TabsTrigger
                 id={'program-tab-' + i}
+                aria-controls={'program-panel-' + i}
                 className="package-tab"
                 value={p.name}
                 key={p.name}
@@ -122,6 +124,7 @@ export function HomeSections() {
           </TabsList>
           {packages.map((p, i) => (
             <TabsContent
+              keepMounted
               id={'program-panel-' + i}
               aria-labelledby={'program-tab-' + i}
               value={p.name}
@@ -137,10 +140,7 @@ export function HomeSections() {
                   ? 'İhtiyaca özel araç karması ve operasyon planı.'
                   : 'Süreye uygun araç tarifesi otomatik uygulanır. Ek hizmetleri ayrıca seçebilirsiniz.'}
               </p>
-              <Link
-                className="button primary"
-                href={p.name === 'Kurumsal' ? '/kurumsal' : '/paketler'}
-              >
+              <Link className="button primary" href={programHref(p.name)}>
                 Programı İncele
               </Link>
             </TabsContent>
@@ -169,9 +169,9 @@ export function HomeSections() {
           </span>
           <h2>İnişinizden önce hazır.</h2>
           <p>
-            Uçuş numaranızı paylaşın; gecikmeleri takip edelim, aracınızı
-            terminal çıkışında teslim edelim. İstanbul Havalimanı, Sabiha Gökçen
-            ve özel terminal seçenekleri.
+            İstanbul Havalimanı veya Sabiha Gökçen için terminal karşılama
+            senaryosunu deneyin. Bu demoda uçuş takibi ve gerçek teslimat
+            yapılmaz.
           </p>
           <Link className="button primary" href="/havalimani-teslimati">
             Teslimatı Planla <ArrowRight />

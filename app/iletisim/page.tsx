@@ -1,10 +1,11 @@
+import { pageMetadata } from '@/lib/seo';
 import { DemoForm } from '@/components/forms';
 import { Footer } from '@/components/footer';
 import { siteImages } from '@/data/vehicles';
-export const metadata = {
+export const metadata = pageMetadata('/iletisim', {
   title: 'İletişim',
   description: 'Gerçek gönderim yapmayan portföy iletişim formunu deneyin.',
-};
+});
 export default function Page() {
   return (
     <main className="inner-page">

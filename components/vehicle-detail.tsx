@@ -1,11 +1,13 @@
 'use client';
 import { useState } from 'react';
+import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Briefcase, Fuel, Gauge, Heart, Users } from 'lucide-react';
 import type { Vehicle } from '@/data/vehicles';
 import { VehicleVisual } from './vehicle-visual';
 import { useFavorites } from './favorites';
 import { DateTimeField, LocationField } from './trip-fields';
+import { focusInvalid } from '@/lib/validation';
 import {
   DEMO_NOTICE,
   readTrip,
@@ -16,13 +18,21 @@ import {
   quote,
   money,
   type Trip,
+  defaultTrip,
+  tripNotice,
+  PRICE_NOTICE,
+  TARIFF_NOTICE,
 } from '@/lib/booking';
 export function VehicleDetail({ vehicle }: { vehicle: Vehicle }) {
   const { favorites, toggle } = useFavorites();
   const router = useRouter();
   const q = useSearchParams();
   const [trip, setTrip] = useState(() =>
-    readTrip(new URLSearchParams(q.toString())),
+    readTrip(new URLSearchParams(q.toString()), {
+      ...defaultTrip(),
+      pickup: vehicle.locations[0],
+      dropoff: vehicle.locations[0],
+    }),
   );
   const [errors, setErrors] = useState<Record<string, string>>({});
   const price = quote(vehicle, trip.from, trip.to);
@@ -35,17 +45,31 @@ export function VehicleDetail({ vehicle }: { vehicle: Vehicle }) {
         ? { to: minimumReturn(value) }
         : {}),
     }));
-    setErrors({});
+    setErrors((e) => ({ ...e, [key]: '' }));
   }
   function submit(e: React.SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
-    const invalid = tripErrors(trip);
+    const invalid = tripErrors(trip, new Date(), vehicle);
     setErrors(invalid);
     if (!Object.keys(invalid).length)
       router.push('/rezervasyon?' + tripParams(trip, vehicle.slug));
+    else focusInvalid(e.currentTarget);
   }
   return (
     <>
+      <nav className="breadcrumb" aria-label="İçerik yolu">
+        <Link href="/">Ana sayfa</Link>
+        <span>/</span>
+        <Link
+          href={
+            '/araclar?' +
+            (q.has('catalog') ? q.get('catalog') : tripParams(trip))
+          }
+        >
+          Kataloğa dön
+        </Link>
+        <span>/ {vehicle.model}</span>
+      </nav>
       <section className="detail-gallery">
         <VehicleVisual vehicle={vehicle} priority className="detail-main" />
       </section>
@@ -60,6 +84,16 @@ export function VehicleDetail({ vehicle }: { vehicle: Vehicle }) {
       </header>
       <div className="detail-layout">
         <form className="sticky-booking" onSubmit={submit}>
+          {tripNotice(new URLSearchParams(q.toString()), trip) && (
+            <p className="journey-notice">
+              {tripNotice(new URLSearchParams(q.toString()), trip)}
+            </p>
+          )}
+          <p className="availability">
+            {vehicle.available
+              ? 'Demo filo: müsait'
+              : 'Talep üzerine · müsaitlik onayı yok'}
+          </p>
           <div className="price-readout">
             <span>GÜNLÜK TARİFE</span>
             <b>{money(vehicle.dailyPrice)}</b>
@@ -85,12 +119,16 @@ export function VehicleDetail({ vehicle }: { vehicle: Vehicle }) {
             label="TESLİM ALMA"
             value={trip.pickup}
             onChange={(v) => change('pickup', v)}
+            error={errors.pickup}
+            allowed={vehicle.locations}
           />
           <LocationField
             id="detail-dropoff"
             label="BIRAKMA"
             value={trip.dropoff}
             onChange={(v) => change('dropoff', v)}
+            error={errors.dropoff}
+            allowed={vehicle.locations}
           />
           <div className="total-line">
             <span>
@@ -99,18 +137,24 @@ export function VehicleDetail({ vehicle }: { vehicle: Vehicle }) {
             <b>{money(price.total)}</b>
           </div>
           <button className="button primary full" type="submit">
-            Rezervasyona Devam Et
+            {vehicle.available
+              ? 'Rezervasyona Devam Et'
+              : 'Talep Üzerine Demoyu Dene'}
           </button>
           <button
             type="button"
             className="save-line"
             aria-pressed={saved}
+            aria-label={`${vehicle.brand} ${vehicle.model}: ${saved ? 'Favorilerden çıkar' : 'Favorilere ekle'}`}
             onClick={() => toggle(vehicle.slug)}
           >
             <Heart fill={saved ? 'currentColor' : 'none'} />
             {saved ? 'Favorilerde' : 'Favoriye ekle'}
           </button>
           <small className="demo-note">{DEMO_NOTICE}</small>
+          <p className="price-notice">
+            Kiralama toplamı; ek hizmetler hariç. {PRICE_NOTICE}
+          </p>
         </form>
         <div className="detail-content">
           <span className="eyebrow dark">TEKNİK DOSYA</span>
@@ -177,8 +221,8 @@ export function VehicleDetail({ vehicle }: { vehicle: Vehicle }) {
             <p className="body-copy">
               Haftalık {money(vehicle.weeklyPrice)} · Aylık{' '}
               {money(vehicle.monthlyPrice)}. 7 ve 30 günden itibaren ilgili araç
-              tarifesinin günlük karşılığı uygulanır. Görseller konsept
-              sunumdur; donanım örnek veridir.
+              tarifesinin günlük karşılığı uygulanır. {TARIFF_NOTICE} Görseller
+              konsept sunumdur; donanım örnek veridir.
             </p>
           </section>
         </div>

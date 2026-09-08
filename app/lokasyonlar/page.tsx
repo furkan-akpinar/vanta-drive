@@ -1,14 +1,15 @@
+import { pageMetadata } from '@/lib/seo';
 import Link from 'next/link';
 import { locations } from '@/data/content';
 import { siteImages } from '@/data/vehicles';
 import { RouteMap } from '@/components/route-map';
 import { Footer } from '@/components/footer';
 import { MediaImage } from '@/components/media-image';
-export const metadata = {
+export const metadata = pageMetadata('/lokasyonlar', {
   title: 'Teslimat Noktaları',
   description:
     'Dört şehir ve iki havalimanına yayılan örnek VANTA DRIVE teslimat ağı.',
-};
+});
 export default function Page() {
   return (
     <main className="inner-page">

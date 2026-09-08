@@ -1,23 +1,26 @@
+import { vehicles } from '@/data/vehicles';
+import { PRICE_NOTICE, TARIFF_NOTICE } from '@/lib/booking';
 const faqs = [
   [
     'Kiralama için yaş sınırı nedir?',
-    'Araç sınıfına göre minimum yaş 26–30, ehliyet süresi ise 4–7 yıl arasında değişir. Her aracın detay sayfasında geçerli koşullar gösterilir.',
+    `Filoda minimum yaş ${Math.min(...vehicles.map((v) => v.minAge))}–${Math.max(...vehicles.map((v) => v.minAge))}, ehliyet süresi ${Math.min(...vehicles.map((v) => v.licenseYears))}–${Math.max(...vehicles.map((v) => v.licenseYears))} yıl arasında değişir. Seçtiğiniz aracın koşullarını son adımda demo beyanıyla onaylarsınız.`,
   ],
   [
     'Depozito ne zaman iade edilir?',
-    'Araç kontrolü tamamlandıktan sonra depozito provizyonu bankanıza bağlı olarak 2–7 iş günü içinde kaldırılır.',
+    'Bu demoda depozito veya provizyon alınmaz. Araçtaki örnek depozito, kiralama toplamından ayrı gösterilir.',
   ],
   [
     'Havalimanında araç teslimi nasıl çalışır?',
-    'Uçuş numaranızı rezervasyona eklediğinizde ekibimiz gecikmeleri takip eder ve terminal çıkışında sizi karşılar.',
+    'İstanbul Havalimanı veya Sabiha Gökçen ve karşılama hizmetini seçin. Örnek uçuş numarası gerekir. Canlı takip ve gerçek teslimat yapılmaz.',
   ],
-  [
-    'Fiyatlara neler dahildir?',
-    'Belirtilen kilometre limiti, zorunlu trafik sigortası, standart kasko ve 7/24 yol desteği dahildir.',
-  ],
+  ['Fiyatlara neler dahildir?', PRICE_NOTICE],
   [
     'Rezervasyonu değiştirebilir miyim?',
-    'Teslim saatinden 24 saat öncesine kadar müsaitliğe bağlı olarak tarih, araç sınıfı ve teslimat noktası değiştirilebilir.',
+    'Demo tamamlanmadan son kontroldeki düzenleme bağlantılarıyla adımlara dönün. Gerçek rezervasyon oluşmadığı için iptal işlemi veya ücret yoktur.',
+  ],
+  [
+    'Günlük, haftalık ve aylık fiyat nasıl hesaplanır?',
+    'Minimum 24 saat; başlanan ek gün tam gün sayılır. ' + TARIFF_NOTICE,
   ],
 ];
 export function FAQ({ limit = faqs.length }: { limit?: number }) {

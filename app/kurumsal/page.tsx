@@ -1,11 +1,12 @@
+import { pageMetadata } from '@/lib/seo';
 import { ServicePage } from '@/components/service-page';
 import { DemoForm } from '@/components/forms';
 import { siteImages } from '@/data/vehicles';
-export const metadata = {
+export const metadata = pageMetadata('/kurumsal', {
   title: 'Kurumsal Filo',
   description:
     'Yönetici araçları ve uzun dönem filo çözümleri için örnek kurumsal deneyim.',
-};
+});
 export default function Page() {
   return (
     <ServicePage
@@ -34,12 +35,11 @@ export default function Page() {
         },
       ]}
     >
-      <section className="client-logos">
-        <span>ARCFLOW</span>
-        <span>NORTH/01</span>
-        <span>KINETIQ</span>
-        <span>AXIS LABS</span>
-        <span>FORM/CO</span>
+      <section className="client-logos" aria-label="Örnek kullanım senaryoları">
+        <span>Yönetici ulaşımı</span>
+        <span>Saha ekipleri</span>
+        <span>Etkinlik transferi</span>
+        <span>Uzun dönem filo</span>
       </section>
       <section className="form-section">
         <div>
@@ -48,8 +48,8 @@ export default function Page() {
           </span>
           <h2>Filo ihtiyacınızı anlatın.</h2>
           <p>
-            Teklif ekibimiz araç sayısı ve kullanım modelinize göre toplam sahip
-            olma maliyeti çalışması hazırlasın.
+            Araç sayısı ve kullanım modelinizle örnek bir filo talebi oluşturun.
+            Form gerçek teklif talebi göndermez.
           </p>
         </div>
         <DemoForm type="corporate" />

@@ -1,10 +1,12 @@
+import { pageMetadata } from '@/lib/seo';
 import { FavoritesPage } from '@/components/favorites-page';
 import { Footer } from '@/components/footer';
-export const metadata = {
+export const metadata = pageMetadata('/favoriler', {
   title: 'Favori Araçlar',
   description:
     'Kaydettiğiniz araçları görün ve üç araca kadar özelliklerini karşılaştırın.',
-};
+  robots: { index: false, follow: true },
+});
 export default function Page() {
   return (
     <main className="inner-page">

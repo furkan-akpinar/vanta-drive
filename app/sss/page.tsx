@@ -1,10 +1,11 @@
+import { pageMetadata } from '@/lib/seo';
 import { FAQ } from '@/components/faq';
 import { Footer } from '@/components/footer';
-export const metadata = {
+export const metadata = pageMetadata('/sss', {
   title: 'Sık Sorulan Sorular',
   description:
     'Kiralama, teslimat, depozito ve demo rezervasyon hakkında sık sorulan sorular.',
-};
+});
 export default function Page() {
   return (
     <main className="inner-page">

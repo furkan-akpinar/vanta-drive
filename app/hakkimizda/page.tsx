@@ -1,9 +1,10 @@
+import { pageMetadata } from '@/lib/seo';
 import { ServicePage } from '@/components/service-page';
 import { siteImages } from '@/data/vehicles';
-export const metadata = {
+export const metadata = pageMetadata('/hakkimizda', {
   title: 'Hakkımızda',
   description: 'VANTA DRIVE premium mobilite konsepti ve tasarım yaklaşımı.',
-};
+});
 export default function Page() {
   return (
     <ServicePage
@@ -11,23 +12,23 @@ export default function Page() {
       image={siteImages.garage}
       imageAlt="VANTA DRIVE araç hazırlık garajı"
       title="Premium mobilitenin teknik yorumu."
-      lead="VANTA DRIVE, araç kiralamayı bir anahtar tesliminden çıkarıp ölçülebilir bir hizmet standardına dönüştürür."
+      lead="VANTA DRIVE; araç keşfi, seyahat planlama ve rezervasyon adımlarını bir araya getiren Türkçe bir portföy projesidir."
       items={[
         {
-          title: '42 nokta kontrolü',
-          text: 'Her araç teslimattan önce mekanik, kozmetik ve dijital sistem kontrolünden geçer.',
+          title: 'Araç dosyaları',
+          text: 'Yirmi konsept araç; teknik özellikler, tarife ve uygunluk koşullarıyla sunulur.',
         },
         {
-          title: 'Tek ekip',
-          text: 'Rezervasyondan iadeye kadar aynı operasyon ekibi sürecinizi izler.',
+          title: 'Tek seyahat akışı',
+          text: 'Lokasyon ve tarihler katalogdan araç detayına, ardından dört adımlı demoya taşınır.',
         },
         {
-          title: 'Şeffaf sözleşme',
-          text: 'Fiyat, depozito, kilometre ve güvence kapsamı imza öncesi net biçimde gösterilir.',
+          title: 'Açık fiyat hesabı',
+          text: 'Kiralama, ek hizmetler ve depozito ayrı gösterilir. Ödeme veya sözleşme işlemi yapılmaz.',
         },
         {
           title: 'Türkiye ağı',
-          text: 'Dört şehir ve iki havalimanında kontrollü büyüyen teslimat altyapısı.',
+          text: 'Dört şehirde altı örnek teslimat noktası; gerçek ofis veya canlı envanter bağlantısı bulunmaz.',
         },
       ]}
     />

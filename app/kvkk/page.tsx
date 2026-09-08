@@ -1,5 +1,8 @@
+import { pageMetadata } from '@/lib/seo';
 import { LegalPage } from '@/components/legal-page';
-export const metadata = { title: 'KVKK · Örnek Bilgilendirme' };
+export const metadata = pageMetadata('/kvkk', {
+  title: 'KVKK · Örnek Bilgilendirme',
+});
 export default function Page() {
   return (
     <LegalPage

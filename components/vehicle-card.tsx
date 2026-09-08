@@ -5,22 +5,29 @@ import type { Vehicle } from '@/data/vehicles';
 import { VehicleVisual } from './vehicle-visual';
 import { useFavorites } from './favorites';
 import { useSearchParams } from 'next/navigation';
-import { readTrip, tripParams, type Trip } from '@/lib/booking';
+import { readTrip, tripParams, quote, money, type Trip } from '@/lib/booking';
 export function VehicleCard({
   vehicle,
   trip,
+  catalogQuery,
 }: {
   vehicle: Vehicle;
   trip?: Trip;
+  catalogQuery?: string;
 }) {
   const params = useSearchParams();
   const carriedTrip =
     trip ||
-    (params.has('from')
+    (['from', 'pickup', 'lokasyon'].some((k) => params.has(k))
       ? readTrip(new URLSearchParams(params.toString()))
       : undefined);
   const { favorites, toggle } = useFavorites();
   const saved = favorites.includes(vehicle.slug);
+  const price = carriedTrip
+    ? quote(vehicle, carriedTrip.from, carriedTrip.to)
+    : null;
+  const query = new URLSearchParams(carriedTrip ? tripParams(carriedTrip) : '');
+  if (catalogQuery !== undefined) query.set('catalog', catalogQuery);
   return (
     <article className="vehicle-card">
       <VehicleVisual vehicle={vehicle} />
@@ -33,7 +40,7 @@ export function VehicleCard({
           type="button"
           className={`favorite ${saved ? 'saved' : ''}`}
           onClick={() => toggle(vehicle.slug)}
-          aria-label={saved ? 'Favorilerden çıkar' : 'Favorilere ekle'}
+          aria-label={`${vehicle.brand} ${vehicle.model}: ${saved ? 'Favorilerden çıkar' : 'Favorilere ekle'}`}
           aria-pressed={saved}
         >
           <Heart fill={saved ? 'currentColor' : 'none'} />
@@ -60,13 +67,22 @@ export function VehicleCard({
         </p>
         <Link
           className="detail-link"
-          href={`/araclar/${vehicle.slug}${carriedTrip ? '?' + tripParams(carriedTrip) : ''}`}
+          href={`/araclar/${vehicle.slug}${query.size ? '?' + query.toString() : ''}`}
           aria-label={`${vehicle.model} detayını aç`}
         >
           <span>DETAY</span>
           <ArrowUpRight />
         </Link>
       </div>
+      <p className="card-trip-price">
+        {price
+          ? `${price.days} gün · ${price.tariff} · ${money(price.rental)} kiralama`
+          : 'Tarih seçerek toplamı görün.'}
+        <span>
+          Ek hizmetler hariç ·{' '}
+          {vehicle.available ? 'Demo: müsait' : 'Demo: talep üzerine'}
+        </span>
+      </p>
     </article>
   );
 }

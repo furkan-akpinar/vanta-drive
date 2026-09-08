@@ -1,0 +1,409 @@
+/* Shared journey, form and feedback refinements. */
+:root {
+  --blue: #1557ef;
+}
+.advantage-grid > div > span,
+.package-tab > span,
+.package-readout > span,
+.trip-summary > div > span,
+.trip-summary > small,
+.big-specs > div > span,
+.terms-grid span {
+  color: #485970;
+}
+.package-tab[data-active] > span {
+  color: #bfcee2;
+}
+.eyebrow.dark i,
+.legal-copy section > span {
+  color: #b1380b;
+}
+.detail-heading .eyebrow.dark {
+  color: #bfcee2;
+}
+.service-grid article > span {
+  color: #526177;
+}
+.client-logos {
+  color: #b8c5d8;
+}
+.proposal-form,
+.proposal-form label,
+.proposal-form .demo-note {
+  color: #32465d;
+}
+.advantage-grid > div > span,
+.package-tab > span,
+.package-readout > span,
+.trip-summary > div > span {
+  font-size: 0.75rem;
+}
+html {
+  scroll-padding-top: 5rem;
+}
+[id] {
+  scroll-margin-top: 5rem;
+}
+button,
+a,
+input,
+summary {
+  touch-action: manipulation;
+}
+button:not(:disabled),
+summary {
+  cursor: pointer;
+}
+:focus-visible {
+  outline: 3px solid #5388ff;
+  outline-offset: 4px;
+}
+.hero-demo {
+  font: 0.875rem/1.6 var(--font-mono);
+  color: #e1e8f4;
+  letter-spacing: 0.08em;
+  margin-bottom: 18px;
+}
+.video-control {
+  position: absolute;
+  top: 28px;
+  right: 28px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #101722;
+  color: white;
+  border: 1px solid #8190a5;
+  font-size: 0.875rem;
+}
+.card-trip-price {
+  padding: 16px 20px 20px;
+  margin: 0;
+  border-top: 1px solid #435065;
+  color: #e0e8f4;
+  font-size: 0.875rem;
+  line-height: 1.7;
+}
+.card-trip-price span {
+  display: block;
+  color: #b4c2d6;
+  font-size: 0.8125rem;
+}
+.list-view .card-trip-price {
+  grid-column: 2;
+}
+.journey-notice {
+  background: #e5ecfa;
+  color: #183451;
+  padding: 16px 20px;
+  border-left: 3px solid #1557ef;
+  line-height: 1.65;
+  font-size: 0.9375rem;
+}
+.catalog > .journey-notice {
+  grid-column: 1/-1;
+}
+.sticky-booking .journey-notice {
+  margin: 0;
+}
+.sticky-booking > .journey-notice,
+.sticky-booking > .availability,
+.sticky-booking > .price-notice {
+  grid-column: 1 / -1;
+}
+.package-readout[hidden] {
+  display: none;
+}
+.availability {
+  font-size: 0.875rem;
+  color: #e5edfc;
+  border-bottom: 1px solid #58677c;
+  padding-bottom: 12px;
+}
+.breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 24px var(--gutter, 28px);
+  background: #111924;
+  color: #d3ddee;
+  font-size: 0.875rem;
+}
+.breadcrumb a,
+.final-review button,
+.favorite-feedback a {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.price-notice,
+.tariff-explainer {
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: #c8d5e8;
+  margin-top: 20px;
+}
+.tariff-explainer summary {
+  min-height: 40px;
+}
+.service-fields {
+  margin-top: 24px;
+}
+.extras-grid button p {
+  grid-column: 1/-1;
+  font-size: 0.875rem;
+  line-height: 1.65;
+  margin: 8px 0 0;
+}
+.extras-grid button:disabled {
+  opacity: 1;
+  color: #566172;
+  background: #e9edf3;
+  border-style: dashed;
+  cursor: not-allowed;
+}
+.eligibility {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  margin: 28px 0;
+}
+.eligibility input {
+  width: 22px;
+  height: 22px;
+  flex: 0 0 22px;
+  margin-top: 3px;
+  accent-color: var(--blue);
+}
+.final-review {
+  margin-top: 32px;
+  border-top: 1px solid #8b9bb1;
+}
+.final-review h3 {
+  font-size: 1.35rem;
+  margin: 24px 0;
+}
+.final-review > div {
+  padding: 20px 0;
+  border-bottom: 1px solid #b7c3d3;
+}
+.final-review p {
+  font-size: 1rem;
+  overflow-wrap: anywhere;
+  line-height: 1.7;
+  margin: 8px 0;
+}
+.final-review button {
+  font-size: 0.875rem;
+  color: #1649b8;
+  padding: 8px 0;
+  background: none;
+  border: 0;
+}
+.confirmation-trip {
+  max-width: 720px;
+  margin: 32px auto;
+  padding: 24px;
+  background: #e8edf4;
+  color: #142237;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.confirmation #confirmation-title {
+  font-size: clamp(2rem, 5vw, 4.5rem);
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+  margin: 24px 0;
+}
+.confirmation-trip h2 {
+  font-size: 1.75rem;
+  line-height: 1.25;
+}
+.confirmation .button {
+  margin: 8px;
+}
+.favorite-feedback:empty {
+  display: none;
+}
+.favorite-feedback {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  max-width: min(420px, calc(100vw - 40px));
+  background: #142239;
+  color: white;
+  border: 1px solid #7894bb;
+  padding: 14px 20px;
+  z-index: 40;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  animation: feedback-dismiss 7s forwards;
+}
+.favorite-feedback a {
+  display: block;
+  margin-top: 8px;
+  color: #bdd2ff;
+}
+@keyframes feedback-dismiss {
+  0%,
+  85% {
+    opacity: 1;
+    visibility: visible;
+  }
+  100% {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+.comparison-guide {
+  display: block;
+  margin: 0 0 24px;
+  color: #31455f;
+  font-size: 1rem;
+  line-height: 1.7;
+}
+.compare-wrap,
+.compare-table {
+  min-width: 0;
+  max-width: 100%;
+}
+.compare-table th,
+.compare-table td {
+  min-width: 170px;
+  vertical-align: top;
+  font-size: 0.875rem;
+}
+.service-grid .button {
+  margin-top: 24px;
+  font-size: 0.875rem;
+}
+.page-header .service-demo {
+  font-size: 0.875rem;
+  color: #bfcee2;
+}
+.form-grid label,
+.proposal-form label,
+.cockpit-field > label,
+.choice-field > label {
+  font-size: 0.875rem;
+}
+.form-grid input,
+.proposal-form input,
+.proposal-form textarea,
+.field-trigger,
+.date-trigger {
+  font-size: 1rem;
+}
+.steps li,
+.booking-summary dl > div,
+.booking-nav .button,
+.button,
+.filter-controls button,
+.same-location {
+  font-size: 0.875rem;
+}
+.booking-summary dt {
+  color: #bdcbe0;
+}
+.field-error {
+  color: #a52a1b !important;
+  font-size: 0.875rem !important;
+  line-height: 1.6;
+}
+.sticky-booking .field-error,
+.booking-console .field-error {
+  color: #ffb4a6 !important;
+}
+.hero-video-content h1 em {
+  color: #fff;
+  -webkit-text-stroke: 0;
+}
+.form-grid > *,
+.proposal-form > *,
+.booking-work > *,
+.total-line > * {
+  min-width: 0;
+}
+.total-line {
+  flex-wrap: wrap;
+}
+@media (max-width: 760px) {
+  .hero-demo {
+    max-width: 75%;
+    font-size: 0.75rem;
+  }
+  .video-control {
+    top: 16px;
+    right: 16px;
+    padding: 10px;
+  }
+  .video-control span {
+    display: none;
+  }
+  .form-grid,
+  .extras-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .flow-step {
+    padding: 24px 20px;
+  }
+  .booking-summary dl {
+    display: block;
+  }
+  .booking-summary dl > div {
+    gap: 12px;
+  }
+  .booking-summary dd {
+    overflow-wrap: anywhere;
+  }
+  .list-view .card-trip-price {
+    grid-column: 1/-1;
+  }
+  .form-grid .field-trigger {
+    white-space: normal;
+    height: auto;
+    min-height: 48px;
+  }
+  .booking-console .cockpit-field > label,
+  .booking-console .choice-field > label {
+    font-size: 0.75rem;
+  }
+  .same-location {
+    align-items: start;
+    flex-wrap: wrap;
+  }
+  .booking-nav {
+    padding: 20px;
+    gap: 10px;
+  }
+  .booking-nav .button {
+    padding: 14px 12px;
+  }
+  .favorite-feedback {
+    bottom: 12px;
+    right: 12px;
+    max-width: calc(100vw - 24px);
+  }
+}
+@media (max-width: 380px) {
+  .booking-title h1,
+  .page-header h1 {
+    font-size: clamp(1.875rem, 9vw, 2.5rem);
+    overflow-wrap: anywhere;
+  }
+  .sticky-booking {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .steps li {
+    padding: 12px 10px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .favorite-feedback {
+    animation-duration: 7s !important;
+    animation-timing-function: steps(1, end);
+  }
+}

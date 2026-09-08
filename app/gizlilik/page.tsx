@@ -1,5 +1,6 @@
+import { pageMetadata } from '@/lib/seo';
 import { LegalPage } from '@/components/legal-page';
-export const metadata = { title: 'Gizlilik · Demo' };
+export const metadata = pageMetadata('/gizlilik', { title: 'Gizlilik · Demo' });
 export default function Page() {
   return (
     <LegalPage
@@ -9,11 +10,11 @@ export default function Page() {
       sections={[
         {
           title: 'Yerel tercihler',
-          text: 'Favori araçlar ve araç, tarih, saat, teslimat noktası ile ek hizmet seçimleri bu tarayıcının yerel deposunda saklanır. Üyelik ve merkezi kullanıcı kaydı yoktur.',
+          text: 'Favori araçlar, en fazla üç karşılaştırma seçimi ve araç, tarih, saat, teslimat noktası ile ek hizmet seçimleri bu tarayıcının yerel deposunda saklanır. Üyelik ve merkezi kullanıcı kaydı yoktur.',
         },
         {
           title: 'Form bilgileri',
-          text: 'Ad, telefon, e-posta ve isteğe bağlı teslimat açıklamaları yalnızca açık formun belleğinde tutulur; taslağa yazılmaz ve bir işletmeye gönderilmez. Kart veya ehliyet numarası istenmez.',
+          text: 'Ad, telefon, e-posta, adres ve uçuş bilgileri yalnızca açık formda tutulur; URL, yerel depo, log veya analitiğe yazılmaz. İlgili ek hizmette adres veya uçuş bilgisi gerekir. Tamamlanma veya sayfadan ayrılmada form bilgileri temizlenir. Kart veya ehliyet numarası istenmez.',
         },
         {
           title: 'Temizleme',

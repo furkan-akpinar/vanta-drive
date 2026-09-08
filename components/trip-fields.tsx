@@ -25,7 +25,7 @@ export function ChoiceField({
   id: string;
   label: string;
   value: string;
-  options: readonly { value: string; label: string }[];
+  options: readonly { value: string; label: string; disabled?: boolean }[];
   onChange: (v: string) => void;
   error?: string;
 }) {
@@ -37,6 +37,7 @@ export function ChoiceField({
           id={id}
           aria-labelledby={`${id}-label`}
           aria-invalid={!!error}
+          aria-describedby={error ? `${id}-error` : undefined}
           className="field-trigger"
         >
           <SelectValue>
@@ -45,14 +46,14 @@ export function ChoiceField({
         </SelectTrigger>
         <SelectContent className="cockpit-menu">
           {options.map((o) => (
-            <SelectItem value={o.value} key={o.value}>
+            <SelectItem value={o.value} key={o.value} disabled={o.disabled}>
               {o.label}
             </SelectItem>
           ))}
         </SelectContent>
       </Select>
       {error && (
-        <small className="field-error" role="alert">
+        <small className="field-error" id={`${id}-error`} role="alert">
           {error}
         </small>
       )}
@@ -65,12 +66,14 @@ export function LocationField({
   value,
   onChange,
   error,
+  allowed,
 }: {
   id: string;
   label: string;
   value: string;
   onChange: (v: string) => void;
   error?: string;
+  allowed?: string[];
 }) {
   return (
     <div className="cockpit-field">
@@ -80,7 +83,15 @@ export function LocationField({
         label={label}
         value={value}
         onChange={onChange}
-        options={locations.map((l) => ({ value: l.name, label: l.name }))}
+        options={locations.map((l) => ({
+          value: l.name,
+          label:
+            l.name +
+            (allowed && !allowed.includes(l.name)
+              ? ' · Bu araç için uygun değil'
+              : ''),
+          disabled: allowed ? !allowed.includes(l.name) : false,
+        }))}
         error={error}
       />
     </div>
@@ -125,11 +136,12 @@ export function DateTimeField({
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger
           id={id}
-          aria-labelledby={`${id}-label`}
+          aria-labelledby={`${id}-label ${id}-value`}
           aria-invalid={!!error}
+          aria-describedby={error ? `${id}-error` : undefined}
           className="cockpit-trigger date-trigger"
         >
-          <span>
+          <span id={`${id}-value`}>
             {date ? format(date, 'd MMM yyyy', { locale: tr }) : 'Tarih seçin'}
             <small>{date ? time : 'Saat seçin'}</small>
           </span>
@@ -164,7 +176,7 @@ export function DateTimeField({
         </PopoverContent>
       </Popover>
       {error && (
-        <small className="field-error" role="alert">
+        <small className="field-error" id={`${id}-error`} role="alert">
           {error}
         </small>
       )}

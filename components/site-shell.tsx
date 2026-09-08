@@ -35,7 +35,7 @@ const panelNav = [
 export function SiteShell({ children }: { children: React.ReactNode }) {
   const path = usePathname();
   const [open, setOpen] = useState(false);
-  const { favorites } = useFavorites();
+  const { favorites, message } = useFavorites();
   const active = (href: string) =>
     href === '/' ? path === '/' : path.startsWith(href);
   return (
@@ -44,7 +44,11 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
         İçeriğe geç
       </a>
       <aside className="rail">
-        <Link className="monogram" href="/" aria-label="Vanta Drive ana sayfa">
+        <Link
+          className="monogram"
+          href="/"
+          aria-label="VD · Vanta Drive ana sayfa"
+        >
           VD
         </Link>
         <nav className="rail-nav" aria-label="Ana navigasyon">
@@ -81,7 +85,11 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
       <header className="mobile-bar">
-        <Link className="monogram" href="/" aria-label="Vanta Drive ana sayfa">
+        <Link
+          className="monogram"
+          href="/"
+          aria-label="VD · Vanta Drive ana sayfa"
+        >
           VD
         </Link>
         <div className="mobile-actions">
@@ -108,6 +116,10 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
       <div id="main-content" tabIndex={-1}>
         {children}
       </div>
+      <output className="favorite-feedback" aria-live="polite" key={message}>
+        {message}
+        {message && <Link href="/favoriler">Favoriler ve karşılaştırma</Link>}
+      </output>
       <DialogContent className="garage-panel" showCloseButton={false}>
         <div className="panel-head">
           <span className="monogram">VD</span>

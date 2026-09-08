@@ -52,9 +52,11 @@ function ChoiceGroup({
 export function FilterControls({
   filters,
   set,
+  scope = 'desktop',
 }: {
   filters: Filters;
   set: <K extends keyof Filters>(key: K, value: Filters[K]) => void;
+  scope?: 'desktop' | 'mobile';
 }) {
   return (
     <div className="filter-controls">
@@ -104,6 +106,7 @@ export function FilterControls({
           <b>₺{filters.price[1].toLocaleString('tr-TR')}</b>
         </div>
         <Slider
+          id={`${scope}-price-range`}
           thumbLabels={['Minimum günlük fiyat', 'Maksimum günlük fiyat']}
           min={priceBounds[0]}
           max={priceBounds[1]}
@@ -126,6 +129,7 @@ export function FilterControls({
           <small>Örnek müsaitlik verisi · canlı envanter değil</small>
         </span>
         <Switch
+          id={`${scope}-availability`}
           checked={filters.available}
           onCheckedChange={(checked) => set('available', checked)}
           aria-label="Yalnızca müsait araçlar"
@@ -151,7 +155,11 @@ export function SortControl({
         value={filters.sort}
         onValueChange={(v) => set('sort', v as string)}
       >
-        <SelectTrigger className="sort-trigger" aria-label="Araçları sırala">
+        <SelectTrigger
+          id={`sort-${mobile ? 'mobile' : 'desktop'}`}
+          className="sort-trigger"
+          aria-label="Araçları sırala"
+        >
           <SelectValue>
             {filters.sort === 'price-desc'
               ? 'Fiyat: Azalan'

@@ -1,5 +1,6 @@
 import { vehicles } from '../data/vehicles';
 import { vehicleClasses } from '../data/classes';
+import { readTrip } from './booking';
 
 export type Filters = {
   className: string;
@@ -32,9 +33,11 @@ export const defaultFilters: Filters = {
 export const choices = {
   className: vehicleClasses.map((c) => c.name) as string[],
   brand: [...new Set(vehicles.map((v) => v.brand))],
-  fuel: ['Benzin', 'Dizel', 'Hibrit', 'Elektrik'],
-  transmission: ['Otomatik', 'Manuel'],
-  seats: ['4', '5', '7'],
+  fuel: [...new Set(vehicles.map((v) => v.fuel))],
+  transmission: [
+    ...new Set(vehicles.map((v) => v.transmissionType)),
+  ] as string[],
+  seats: [...new Set(vehicles.map((v) => String(v.seats)))].sort(),
   location: [...new Set(vehicles.flatMap((v) => v.locations))],
 };
 export function optionLabel(key: keyof typeof choices, value: string) {
@@ -68,7 +71,9 @@ export function readFilters(q: URLSearchParams): Filters {
   ];
   filters.price.sort((a, b) => a - b);
   filters.available = q.get('musait') === '1';
-  filters.search = q.get('q') || '';
+  filters.search = (q.get('q') || '').trim().replace(/\s+/g, ' ');
+  filters.location =
+    q.has('pickup') || q.has('lokasyon') ? readTrip(q).pickup : '';
   filters.sort = ['price-asc', 'price-desc', 'power'].includes(
     q.get('sort') || '',
   )

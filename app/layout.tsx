@@ -2,8 +2,11 @@ import type { Metadata } from 'next';
 import { SiteShell } from '@/components/site-shell';
 import './globals.css';
 import './fonts.css';
+import './revision.css';
+import { siteOrigin } from '@/lib/seo';
 
 export const metadata: Metadata = {
+  ...(siteOrigin ? { metadataBase: new URL(siteOrigin) } : {}),
   icons: { icon: '/favicon.svg' },
   title: {
     default: 'VANTA DRIVE | Premium Araç Kiralama',
@@ -16,20 +19,22 @@ export const metadata: Metadata = {
     description: 'Yolu değil, standardı değiştirin.',
     type: 'website',
     locale: 'tr_TR',
-    images: [
-      {
-        url: '/images/hero-vanta.webp',
-        width: 1920,
-        height: 1080,
-        alt: 'VANTA DRIVE premium araç kiralama',
-      },
-    ],
+    images: siteOrigin
+      ? [
+          {
+            url: siteOrigin + '/images/hero-vanta.webp',
+            width: 1920,
+            height: 1080,
+            alt: 'VANTA DRIVE premium araç kiralama',
+          },
+        ]
+      : [],
   },
   twitter: {
-    card: 'summary_large_image',
+    card: siteOrigin ? 'summary_large_image' : 'summary',
     title: 'VANTA DRIVE',
     description: 'Yolu değil, standardı değiştirin.',
-    images: ['/images/hero-vanta.webp'],
+    images: siteOrigin ? [siteOrigin + '/images/hero-vanta.webp'] : [],
   },
 };
 

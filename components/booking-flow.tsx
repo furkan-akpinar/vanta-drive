@@ -1,10 +1,11 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { Check, ChevronLeft, ChevronRight } from 'lucide-react';
 import { vehicles } from '@/data/vehicles';
 import { useHydrated } from '@/hooks/use-hydrated';
 import { BookingStep, type Contact } from './booking-step';
+import { contactErrors, validText } from '@/lib/validation';
 import {
   DEMO_NOTICE,
   restorePreferences,
@@ -14,23 +15,47 @@ import {
   money,
   displayDateTime,
   type Preferences,
+  serviceReason,
+  PRICE_NOTICE,
+  TARIFF_NOTICE,
+  tripNotice,
 } from '@/lib/booking';
 
-function initial() {
+function initial(query: string) {
   let raw = null;
   if (typeof window !== 'undefined') {
     try {
       raw = localStorage.getItem('vanta-booking');
     } catch {}
-    return restorePreferences(raw, new URLSearchParams(location.search));
+    return restorePreferences(raw, new URLSearchParams(query));
   }
-  return restorePreferences(null, new URLSearchParams());
+  return restorePreferences(null, new URLSearchParams(query));
 }
-export function BookingFlow() {
+export function BookingFlow({ query }: { query: string }) {
   const hydrated = useHydrated();
-  const [data, setData] = useState<Preferences>(initial);
+  const [data, setData] = useState<Preferences>(() => initial(query));
   const [step, setStep] = useState(0);
   const [done, setDone] = useState(false);
+  const [eligible, setEligible] = useState(false);
+  const root = useRef<HTMLFormElement>(null);
+  const [initialNotice] = useState(() => {
+    if (typeof window === 'undefined') return '';
+    const q = new URLSearchParams(query);
+    if (q.has('vehicle') && !vehicles.some((v) => v.slug === q.get('vehicle')))
+      return 'Bağlantıdaki araç bulunamadı. Yeni bir araç seçerek demoya devam edebilirsiniz.';
+    let raw = null;
+    try {
+      raw = localStorage.getItem('vanta-booking');
+    } catch {
+      return 'Tarayıcı depolaması kullanılamıyor; tercihler yalnızca bu açık formda korunur.';
+    }
+    return (
+      tripNotice(q, data) ||
+      (raw && !q.size
+        ? 'Geçerli seyahat taslağı geri yüklenir; bozuk veya geçmiş taslak yerine yeni tarihler gösterilir. Tercihlerinizi kontrol edin.'
+        : '')
+    );
+  });
   const [contact, setContact] = useState<Contact>({
     name: '',
     phone: '',
@@ -39,6 +64,19 @@ export function BookingFlow() {
     address: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [validationAttempt, setValidationAttempt] = useState(0);
+  useEffect(() => {
+    if (!hydrated) return;
+    const id = requestAnimationFrame(() => {
+      const target =
+        root.current?.querySelector<HTMLElement>(
+          '[aria-invalid="true"], [data-invalid="true"]',
+        ) ||
+        document.getElementById(done ? 'confirmation-title' : 'step-title');
+      target?.focus();
+    });
+    return () => cancelAnimationFrame(id);
+  }, [step, validationAttempt, done, hydrated]);
   useEffect(() => {
     if (!hydrated) return;
     try {
@@ -62,23 +100,51 @@ export function BookingFlow() {
         ? { to: minimumReturn(value) }
         : {}),
     }));
-    setErrors({});
+    if (key === 'vehicle') setEligible(false);
+    if (key === 'extras' && Array.isArray(value))
+      setContact((c) => ({
+        ...c,
+        ...(!value.includes('airport') ? { flight: '' } : {}),
+        ...(!value.includes('delivery') ? { address: '' } : {}),
+      }));
+    setErrors((e) => ({ ...e, [key]: '' }));
   }
   function next(e: React.SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
-    const invalid = tripErrors(data);
+    setValidationAttempt((v) => v + 1);
+    const invalid = tripErrors(data, new Date(), vehicle);
     if (Object.keys(invalid).length) {
       setErrors(invalid);
       setStep(invalid.from || invalid.to ? 0 : 1);
       return;
     }
-    if (step === 3) {
+    if (step >= 2) {
       const issues: Record<string, string> = {};
-      if (contact.name.trim().length < 2) issues.name = 'Ad soyad girin.';
-      if (!/^[+\d\s()-]{7,20}$/.test(contact.phone))
-        issues.phone = 'Geçerli bir telefon girin.';
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.email))
-        issues.email = 'Geçerli bir e-posta girin.';
+      const unsupported = data.extras.filter((id) => serviceReason(id, data));
+      if (unsupported.length)
+        issues.extras =
+          'Teslimat noktasına uygun olmayan seçili hizmetleri kaldırın veya teslimat noktasını düzenleyin.';
+      if (
+        data.extras.includes('delivery') &&
+        !validText(contact.address, 10, 500)
+      )
+        issues.address = '10–500 karakterlik teslimat adresi girin.';
+      if (
+        data.extras.includes('airport') &&
+        !/^[A-Za-z0-9][A-Za-z0-9 -]{1,11}$/.test(contact.flight.trim())
+      )
+        issues.flight =
+          'Uçuş numarasını girin (ör. TK1234). Canlı uçuş takibi yapılmaz.';
+      if (Object.keys(issues).length) {
+        setErrors(issues);
+        setStep(2);
+        return;
+      }
+    }
+    if (step === 3) {
+      const issues = contactErrors(contact);
+      if (!eligible)
+        issues.eligible = 'Demo sürücü uygunluk beyanını onaylayın.';
       setErrors(issues);
       if (Object.keys(issues).length) return;
       setContact({ name: '', phone: '', email: '', flight: '', address: '' });
@@ -94,22 +160,59 @@ export function BookingFlow() {
           <Check />
         </div>
         <span className="eyebrow dark">PORTFÖY DENEYİMİ</span>
-        <h1>
-          Demo rezervasyon
-          <br />
-          tamamlandı.
-        </h1>
+        <h2 id="confirmation-title" tabIndex={-1}>
+          {vehicle.available
+            ? 'Demo rezervasyon tamamlandı.'
+            : 'Talep üzerine demo tamamlandı.'}
+        </h2>
         <p>
           Bu işlem gerçek rezervasyon oluşturmaz. Bilgileriniz gönderilmedi ve
           ödeme alınmadı.
         </p>
+        {!vehicle.available && (
+          <p>Araç müsaitliği onaylanmış değildir. Gerçek talep gönderilmedi.</p>
+        )}
+        <div className="confirmation-trip">
+          <h2>
+            {vehicle.brand} {vehicle.model}
+          </h2>
+          <p>
+            {data.pickup} → {data.dropoff}
+          </p>
+          <p>
+            {displayDateTime(data.from)} — {displayDateTime(data.to)}
+          </p>
+          <p>
+            {price.days} gün · {price.tariff} · Kiralama {money(price.rental)}
+          </p>
+          <p>
+            Ek hizmetler:{' '}
+            {price.services.map((x) => x.name).join(', ') || 'Yok'} ·{' '}
+            {money(price.extraTotal)}
+          </p>
+          <p>
+            Demo toplam {money(price.total)} · Ayrı depozito{' '}
+            {money(vehicle.deposit)}
+          </p>
+        </div>
+        <button
+          type="button"
+          className="button dark-button"
+          onClick={() => {
+            setStep(0);
+            setEligible(false);
+            setDone(false);
+          }}
+        >
+          Yeniden dene
+        </button>
         <Link className="button primary" href="/araclar">
           Filoya dön
         </Link>
       </section>
     );
   return (
-    <form className="booking-flow" onSubmit={next} noValidate>
+    <form ref={root} className="booking-flow" onSubmit={next} noValidate>
       <ol className="steps">
         {['Araç ve tarih', 'Teslimat', 'Ek hizmetler', 'İletişim ve özet'].map(
           (label, i) => (
@@ -125,6 +228,13 @@ export function BookingFlow() {
         )}
       </ol>
       <p className="demo-note">{DEMO_NOTICE}</p>
+      {initialNotice && <p className="journey-notice">{initialNotice}</p>}
+      {!vehicle.available && (
+        <p className="journey-notice">
+          Talep üzerine araç: bu akış müsaitlik onayı vermez ve gerçek talep
+          göndermez.
+        </p>
+      )}
       <div className="booking-work">
         <section className="flow-step" aria-labelledby="step-title">
           <BookingStep
@@ -135,7 +245,90 @@ export function BookingFlow() {
             setContact={setContact}
             errors={errors}
             setErrors={setErrors}
+            eligible={eligible}
+            setEligible={setEligible}
           />
+          {step === 3 && (
+            <section className="final-review" aria-label="Son kontrol">
+              <h3>Seyahatinizi kontrol edin.</h3>
+              <div>
+                <b>Araç ve tarihler</b>
+                <p>
+                  {vehicle.brand} {vehicle.model}
+                  <br />
+                  {displayDateTime(data.from)} — {displayDateTime(data.to)}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setErrors({});
+                    setStep(0);
+                  }}
+                >
+                  Araç ve tarihleri düzenle
+                </button>
+              </div>
+              <div>
+                <b>Teslimat</b>
+                <p>
+                  {data.pickup} → {data.dropoff}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setErrors({});
+                    setStep(1);
+                  }}
+                >
+                  Teslimatı düzenle
+                </button>
+              </div>
+              <div>
+                <b>Ek hizmetler ve açıklamalar</b>
+                <p>
+                  {price.services.map((x) => x.name).join(', ') ||
+                    'Ek hizmet yok'}
+                  {contact.address && (
+                    <>
+                      <br />
+                      Adres: {contact.address}
+                    </>
+                  )}
+                  {contact.flight && (
+                    <>
+                      <br />
+                      Uçuş: {contact.flight}
+                    </>
+                  )}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setErrors({});
+                    setStep(2);
+                  }}
+                >
+                  Hizmetleri düzenle
+                </button>
+              </div>
+              <div>
+                <b>İletişim</b>
+                <p>
+                  {contact.name || 'Ad soyad girilmedi'}
+                  <br />
+                  {contact.phone || 'Telefon girilmedi'}
+                  <br />
+                  {contact.email || 'E-posta girilmedi'}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => document.getElementById('name')?.focus()}
+                >
+                  İletişimi düzenle
+                </button>
+              </div>
+            </section>
+          )}
         </section>
         <aside className="booking-summary">
           <span className="tiny">SEYAHAT ÖZETİ</span>
@@ -173,11 +366,33 @@ export function BookingFlow() {
                 <dd>{money(x.total)}</dd>
               </div>
             ))}
+            <div>
+              <dt>Ek hizmet toplamı</dt>
+              <dd>{money(price.extraTotal)}</dd>
+            </div>
+            <div>
+              <dt>Ayrı depozito · alınmaz</dt>
+              <dd>{money(vehicle.deposit)}</dd>
+            </div>
+            <div>
+              <dt>Toplam km hakkı</dt>
+              <dd>
+                {price.days *
+                  (vehicle.kmLimit +
+                    (data.extras.includes('km') ? 100 : 0))}{' '}
+                km
+              </dd>
+            </div>
           </dl>
           <div className="total-line">
             <span>DEMO TOPLAM</span>
             <b>{money(price.total)}</b>
           </div>
+          <p className="price-notice">{PRICE_NOTICE}</p>
+          <details className="tariff-explainer">
+            <summary>Tarife nasıl hesaplanır?</summary>
+            <p>{TARIFF_NOTICE}</p>
+          </details>
         </aside>
       </div>
       <div className="booking-nav">
