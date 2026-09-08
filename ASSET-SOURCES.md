@@ -56,7 +56,7 @@ The optimized MP4 files and poster are included in this repository.
 
 ## Alternative photographs
 
-`public/assets/cars` and `public/assets/categories` contain the earlier photo set. These files are not referenced by the active vehicle or category components. Their attributions are recorded in [docs/legacy-asset-sources.md](docs/legacy-asset-sources.md).
+The earlier photo set is archived in `docs/legacy-media/cars` and `docs/legacy-media/categories`. A reference scan of app, components, data, lib and scripts confirmed no runtime references before moving these 27 files (5,168,212 bytes) outside the public build on 2026-09-08. Their attributions remain in [docs/legacy-asset-sources.md](docs/legacy-asset-sources.md).
 
 ## Fonts
 
