@@ -64,15 +64,15 @@ The main focus of the project is visual quality, responsive behavior, reusable c
 
 ## Tech Stack
 
-| Technology | Usage |
-|---|---|
-| **Next.js** | Application framework |
-| **React** | Component-based UI |
-| **TypeScript** | Type-safe development |
-| **CSS** | Custom responsive styling |
-| **Vite** | Supporting development tooling |
-| **GitHub Actions** | Continuous integration |
-| **WebP / MP4** | Optimized visual assets |
+| Technology         | Usage                          |
+| ------------------ | ------------------------------ |
+| **Next.js**        | Application framework          |
+| **React**          | Component-based UI             |
+| **TypeScript**     | Type-safe development          |
+| **CSS**            | Custom responsive styling      |
+| **Vite**           | Supporting development tooling |
+| **GitHub Actions** | Continuous integration         |
+| **WebP / MP4**     | Optimized visual assets        |
 
 ---
 
@@ -124,11 +124,13 @@ vanta-drive/
 └── tsconfig.json
 
 ```
+
 ## Vehicle Collection
 
 The project features a curated premium fleet built around luxury, performance and executive mobility.
 
 ### Featured Brands
+
 - **Porsche**
 - **Mercedes-Benz**
 - **BMW**
@@ -138,6 +140,7 @@ The project features a curated premium fleet built around luxury, performance an
 - **Volvo**
 
 ### Vehicle Categories
+
 - **Luxury**
 - **Performance**
 - **Sports**
@@ -153,6 +156,7 @@ The project features a curated premium fleet built around luxury, performance an
 VANTA Drive was designed as a **premium digital experience** rather than a conventional rental marketplace.
 
 ### Core Design Principles
+
 - Large-format automotive imagery
 - Strong typography hierarchy
 - Dark luxury-oriented presentation
@@ -171,12 +175,14 @@ The goal was to create an experience that feels closer to a **premium automotive
 The interface is optimized for a consistent experience across all major device sizes.
 
 ### Supported Viewports
+
 - Desktop
 - Laptop
 - Tablet
 - Mobile
 
 ### Responsive Considerations
+
 - Adaptive navigation structure
 - Flexible content spacing
 - Responsive vehicle cards
@@ -234,3 +240,4 @@ Furkan Akpınar
 Frontend / Web Developer
 
 GitHub: @furkan-akpinar
+```
