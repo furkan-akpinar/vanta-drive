@@ -19,6 +19,21 @@ const check = (name, condition) => {
   assert.ok(condition, name);
   checks.push(name);
 };
+const equivalentURL = (actual, expected) => {
+  try {
+    return new URL(actual).href === new URL(expected).href;
+  } catch {
+    return false;
+  }
+};
+const canonicalURL = (html) => {
+  for (const match of html.matchAll(/<link\b[^>]*>/g)) {
+    const attrs = Object.fromEntries(
+      [...match[0].matchAll(/([\w:-]+)="([^"]*)"/g)].map((m) => [m[1], m[2]]),
+    );
+    if (attrs.rel === 'canonical') return attrs.href;
+  }
+};
 const meta = (html, name) => {
   for (const match of html.matchAll(/<meta\b[^>]*>/g)) {
     const attrs = Object.fromEntries(
@@ -64,9 +79,12 @@ try {
     check(route + ' HTTP 200', res.status() === 200);
     check(
       route + ' canonical real origin',
-      html.includes(`rel="canonical" href="${canonical}"`),
+      equivalentURL(canonicalURL(html), canonical),
     );
-    check(route + ' Open Graph URL', meta(html, 'og:url') === canonical);
+    check(
+      route + ' Open Graph URL',
+      equivalentURL(meta(html, 'og:url'), canonical),
+    );
     check(
       route + ' share title and description',
       !!meta(html, 'og:title') &&
@@ -93,7 +111,7 @@ try {
   ).text();
   check(
     'Filtered catalog canonical excludes query',
-    filtered.includes(`rel="canonical" href="${base}/araclar"`),
+    equivalentURL(canonicalURL(filtered), base + '/araclar'),
   );
   check(
     'Catalog SSR includes vehicle cards',
