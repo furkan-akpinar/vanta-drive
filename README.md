@@ -123,6 +123,7 @@ vanta-drive/
 ├── next.config.ts
 └── tsconfig.json
 
+```
 Vehicle Collection
 
 The project includes a curated premium fleet featuring vehicles from brands such as:
