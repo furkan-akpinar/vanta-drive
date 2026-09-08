@@ -133,3 +133,205 @@ assert.deepEqual(
   [],
 );
 console.log('PASS: booking, pricing, draft, asset and catalog checks.');
+
+const validation = source('lib/validation.ts');
+for (const phone of [
+  '-------',
+  '((()))  ',
+  '       ',
+  '+123',
+  'abcd1234567',
+  '+1234567890123456',
+  '0000000000',
+])
+  assert.equal(validation.validPhone(phone), false, phone);
+for (const phone of [
+  '+90 (555) 123-45-67',
+  '05551234567',
+  '+44 20 7946 0958',
+  '0049 30 123456',
+  '+1 (202) 555-0100',
+])
+  assert.equal(validation.validPhone(phone), true, phone);
+assert.deepEqual(
+  validation.contactErrors({
+    name: 'İpek O’Neill',
+    phone: '+353 87 1234567',
+    email: 'ipek@example.test',
+  }),
+  {},
+);
+assert.ok(
+  validation.contactErrors({ name: '  ', phone: '  ()-- ', email: 'bad' }).name,
+);
+assert.equal(validation.validText('   ', 2, 2000), false);
+assert.equal(validation.validText('a'.repeat(2001), 2, 2000), false);
+for (const tz of [
+  'UTC',
+  'Europe/Istanbul',
+  'America/Los_Angeles',
+  'Asia/Tokyo',
+]) {
+  process.env.TZ = tz;
+  assert.equal(
+    b.minimumPickup(new Date('2030-01-01T23:15:00Z')),
+    '2030-01-02T03:00',
+    tz,
+  );
+  assert.equal(
+    b.defaultTrip(new Date('2030-01-01T23:15:00Z')).from,
+    '2030-01-03T10:00',
+    tz,
+  );
+  assert.equal(
+    b.quote(vehicles[0], '2030-03-09T10:00', '2030-03-10T10:00').days,
+    1,
+    tz,
+  );
+  assert.equal(
+    b.quote(vehicles[0], trip.from, '2030-10-07T10:00').rental,
+    111000,
+    tz,
+  );
+  assert.equal(
+    b.quote(vehicles[0], trip.from, '2030-10-30T10:00').rental,
+    459857,
+    tz,
+  );
+  assert.equal(
+    b.quote(vehicles[0], trip.from, '2030-10-31T10:00').rental,
+    390000,
+    tz,
+  );
+  assert.ok(
+    b.tripErrors(
+      { ...trip, from: '2030-01-01T02:00', to: '2030-01-02T02:00' },
+      new Date('2030-01-01T00:00:00Z'),
+    ).from,
+    tz,
+  );
+}
+for (const value of [
+  '2030-02-30T10:00',
+  '2030-13-01T10:00',
+  '2030-01-01T24:01',
+  '2030-01-01T10:60',
+  'not-a-date',
+])
+  assert.equal(b.validDateTime(value), false, value);
+assert.ok(
+  b.tripErrors({ ...trip, to: '2030-09-30T10:00' }, new Date('2030-09-29')).to,
+);
+assert.ok(
+  b.tripErrors(
+    { ...trip, pickup: 'Ankara' },
+    new Date('2030-09-29'),
+    vehicles[0],
+  ).pickup,
+);
+const ankara = new URLSearchParams(
+  'pickup=Ankara&lokasyon=' + encodeURIComponent('İstanbul Merkez'),
+);
+assert.equal(b.readTrip(ankara).pickup, 'Ankara');
+assert.equal(b.readTrip(ankara).dropoff, 'Ankara');
+assert.equal(catalog.readFilters(ankara).location, 'Ankara');
+const ankaraFleet = catalog.filterVehicles(catalog.readFilters(ankara));
+assert.ok(
+  ankaraFleet.length > 0 &&
+    ankaraFleet.length < 20 &&
+    ankaraFleet.every((v) => v.locations.includes('Ankara')),
+);
+assert.equal(
+  b.readTrip(new URLSearchParams('lokasyon=Ankara')).pickup,
+  'Ankara',
+);
+assert.equal(
+  catalog.readFilters(new URLSearchParams('q=%20%20BMW%20%20i7%20%20')).search,
+  'BMW i7',
+);
+assert.equal(catalog.choices.transmission.includes('Manuel'), false);
+assert.ok(b.serviceReason('airport', { ...trip, pickup: 'Ankara' }));
+assert.ok(b.serviceReason('delivery', trip));
+const airport = b.restorePreferences(
+  draft,
+  new URLSearchParams(
+    'pickup=' + encodeURIComponent('Sabiha Gökçen') + '&extras=airport,unknown',
+  ),
+);
+assert.deepEqual(airport.extras, ['airport']);
+assert.deepEqual(
+  b.restorePreferences(
+    JSON.stringify({
+      version: 2,
+      preferences: {
+        ...trip,
+        from: '2020-01-01T10:00',
+        to: '2020-01-02T10:00',
+        extras: ['driver'],
+        vehicle: vehicles[2].slug,
+      },
+    }),
+    new URLSearchParams(),
+  ).extras,
+  [],
+);
+for (const [name, days] of [
+  ['Günlük', 1],
+  ['Haftalık', 7],
+  ['Aylık', 30],
+]) {
+  const p = b.readTrip(
+    new URL(b.programHref(name), 'http://localhost').searchParams,
+  );
+  assert.equal(b.quote(vehicles[0], p.from, p.to).days, days);
+}
+assert.equal(b.programHref('Kurumsal'), '/kurumsal#demo-form');
+assert.equal(
+  b.quote(vehicles[0], trip.from, trip.to, ['airport', 'airport']).extraTotal,
+  1750,
+);
+console.log(
+  'PASS: international validation, four timezones, tariff thresholds, location conflicts, services and stale drafts.',
+);
+const previousOrigin = process.env.NEXT_PUBLIC_SITE_URL;
+function seoWith(origin) {
+  if (origin === undefined) delete process.env.NEXT_PUBLIC_SITE_URL;
+  else process.env.NEXT_PUBLIC_SITE_URL = origin;
+  cache.delete(path.resolve('lib/seo.ts'));
+  return source('lib/seo.ts');
+}
+for (const invalid of [
+  undefined,
+  'not-a-url',
+  'javascript:alert(1)',
+  'https://user:pass@example.invalid',
+]) {
+  const seo = seoWith(invalid);
+  assert.equal(seo.siteOrigin, undefined);
+  const meta = seo.pageMetadata('/araclar', { title: 'Araçlar' });
+  assert.equal(meta.alternates, undefined);
+  assert.deepEqual(meta.openGraph.images, []);
+}
+const seo = seoWith('https://preview.example.invalid/path');
+for (const vehicle of vehicles) {
+  const route = '/araclar/' + vehicle.slug;
+  const meta = seo.pageMetadata(
+    route,
+    { title: vehicle.brand + ' ' + vehicle.model },
+    vehicle.images[0],
+  );
+  assert.equal(
+    meta.alternates.canonical,
+    'https://preview.example.invalid' + route,
+  );
+  assert.equal(
+    meta.openGraph.images[0].url,
+    'https://preview.example.invalid' + vehicle.images[0],
+  );
+  assert.deepEqual(meta.twitter.images, [meta.openGraph.images[0].url]);
+}
+if (previousOrigin === undefined) delete process.env.NEXT_PUBLIC_SITE_URL;
+else process.env.NEXT_PUBLIC_SITE_URL = previousOrigin;
+console.log(
+  'PASS: absent/invalid publication origin and all 20 vehicle sharing images. Reserved .invalid origin is a test fixture only.',
+);

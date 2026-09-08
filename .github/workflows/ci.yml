@@ -20,3 +20,24 @@ jobs:
       - run: npm run check
       - run: npm run format:check
       - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Start production Worker and wait for readiness
+        run: |
+          npm run start -- --port 3001 > /tmp/vanta-worker.log 2>&1 &
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://127.0.0.1:3001/ > /dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/vanta-worker.log
+          exit 1
+      - run: npm run test:ui
+        env:
+          BASE_URL: http://127.0.0.1:3001
+      - run: npm run test:layout
+        env:
+          BASE_URL: http://127.0.0.1:3001
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-qa
+          path: outputs/qa

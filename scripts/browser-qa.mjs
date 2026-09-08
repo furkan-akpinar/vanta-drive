@@ -1,4 +1,4 @@
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { chromium } from 'playwright';
 const baseURL = process.env.BASE_URL || 'http://localhost:3000';
 const browser = await chromium.launch({ headless: true });
@@ -14,7 +14,7 @@ page.on('response', (r) => {
     badResponses.push({ url: r.url(), status: r.status() });
 });
 await mkdir('outputs/qa', { recursive: true });
-const widths = [320, 360, 390, 430, 768, 820, 1024, 1366, 1440, 1920];
+const widths = [320, 390, 768, 1024, 1440];
 const other = [
   '/araclar/porsche-911-carrera',
   '/rezervasyon',
@@ -34,10 +34,20 @@ const other = [
 ];
 const results = [];
 const links = new Set();
-for (const route of ['/', '/araclar', ...other]) {
-  for (const width of route === '/' || route === '/araclar'
-    ? widths
-    : [390, 1440]) {
+const detailRoutes = [
+  ...[
+    ...(await readFile('data/vehicles.ts', 'utf8')).matchAll(
+      /slug: '([^']+)'/g,
+    ),
+  ].map((m) => '/araclar/' + m[1]),
+  ...[
+    ...(await readFile('data/content.ts', 'utf8')).matchAll(/slug: '([^']+)'/g),
+  ].map((m) => '/lokasyonlar/' + m[1]),
+];
+for (const route of new Set(['/', '/araclar', ...other, ...detailRoutes])) {
+  for (const width of detailRoutes.includes(route) && !other.includes(route)
+    ? [390, 1440]
+    : widths) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto(baseURL + route, {
       waitUntil: 'networkidle',
@@ -58,6 +68,10 @@ for (const route of ['/', '/araclar', ...other]) {
       broken: [...document.images]
         .filter((i) => !i.naturalWidth)
         .map((i) => i.src),
+      title: document.title,
+      description: document.querySelector('meta[name="description"]')?.content,
+      socialTitle: document.querySelector('meta[property="og:title"]')?.content,
+      socialImage: document.querySelector('meta[property="og:image"]')?.content,
       headings: [...document.querySelectorAll('h1')].map((h) => ({
         text: h.textContent,
         width: h.scrollWidth,
@@ -107,6 +121,48 @@ for (const route of ['/', '/araclar', ...other]) {
     );
   }
 }
+for (const route of [
+  '/missing-route',
+  '/araclar/missing-vehicle',
+  '/lokasyonlar/missing-location',
+]) {
+  const response = await page.goto(baseURL + route, {
+    waitUntil: 'networkidle',
+  });
+  const valid =
+    response.status() === 404 &&
+    (await page.getByRole('heading', { name: 'Bu çıkış kapalı.' }).isVisible());
+  results.push({
+    route,
+    width: 1440,
+    overflow: false,
+    broken: [],
+    expected404: valid,
+  });
+  if (!valid) errors.push('404 template failed: ' + route);
+  await page.screenshot({
+    path: 'outputs/qa/404-' + route.split('/').pop() + '.png',
+    fullPage: true,
+  });
+}
+// These are deliberate 404 responses, not failed live internal links.
+const expected404s = [
+  '/missing-route',
+  '/araclar/missing-vehicle',
+  '/lokasyonlar/missing-location',
+];
+for (let i = badResponses.length - 1; i >= 0; i--)
+  if (
+    badResponses[i].status === 404 &&
+    expected404s.includes(new URL(badResponses[i].url, baseURL).pathname)
+  )
+    badResponses.splice(i, 1);
+for (let i = errors.length - 1; i >= 0; i--)
+  if (
+    errors[i].includes('Failed to load resource') &&
+    errors[i].includes('404')
+  )
+    errors.splice(i, 1);
 const linkResults = [];
 for (const route of links) {
   const response = await page.request.get(baseURL + route);

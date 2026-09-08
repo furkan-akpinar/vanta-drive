@@ -23,14 +23,25 @@ const visit = async (path) => {
   await page.goto(baseURL + path, { waitUntil: 'networkidle' });
   await page.locator('h1').first().waitFor();
 };
+const waitForRoute = async (url) => {
+  await page.waitForURL(url);
+  await page.waitForLoadState('networkidle');
+  await page.locator('h1').first().waitFor();
+};
 const check = (name, value) => {
   assert.ok(value, name);
   checks.push(name);
   console.log('PASS', name);
 };
 const choose = async (id, value) => {
-  await page.locator('#' + id).click();
-  await page.getByRole('option', { name: value, exact: true }).click();
+  const trigger = page.locator('#' + id);
+  await trigger.click();
+  await page.locator('#' + id + '[aria-controls]').waitFor();
+  const menuId = await trigger.getAttribute('aria-controls');
+  assert.ok(menuId, 'Select exposes its controlled popup');
+  const menu = page.locator('[id="' + menuId + '"]');
+  await menu.getByRole('option', { name: value, exact: true }).click();
+  await menu.waitFor({ state: 'hidden' });
 };
 await mkdir('outputs/qa', { recursive: true });
 try {
@@ -47,6 +58,14 @@ try {
         (v) => v.autoplay && v.muted && v.loop && v.playsInline && !v.controls,
       ),
   );
+  await page
+    .getByRole('button', { name: 'Arka plan videosunu duraklat' })
+    .click();
+  check(
+    'Video pauses accessibly',
+    await page.locator('video').evaluate((v) => v.paused),
+  );
+  await page.getByRole('button', { name: 'Arka plan videosunu oynat' }).click();
   await page.screenshot({ path: 'outputs/qa/desktop-hero.png' });
   await page
     .getByRole('button', { name: 'Tam ekran menüyü aç', exact: true })
@@ -59,6 +78,9 @@ try {
       .evaluate((d) => d.contains(document.activeElement)),
   );
   for (let i = 0; i < 25; i++) await page.keyboard.press('Tab');
+  await page.waitForFunction(() =>
+    document.querySelector('[role="dialog"]')?.contains(document.activeElement),
+  );
   check(
     'Menu Tab cycle stays within dialog',
     await page
@@ -93,7 +115,7 @@ try {
     (await page.locator('#from').innerText()).includes('12:30'),
   );
   await page.getByRole('button', { name: 'Araç Ara', exact: true }).click();
-  await page.waitForURL('**/araclar?**');
+  await waitForRoute('**/araclar?**');
   const trip = new URL(page.url()).searchParams;
   check(
     'Trip URL carries date/time and both locations',
@@ -103,9 +125,16 @@ try {
   );
   await page
     .locator('.desktop-filters')
+    .getByRole('button', { name: 'İstanbul Merkez', exact: true })
+    .click();
+  await waitForRoute(
+    (url) => url.searchParams.get('pickup') === 'İstanbul Merkez',
+  );
+  await page
+    .locator('.desktop-filters')
     .getByRole('button', { name: 'Porsche', exact: true })
     .click();
-  await page.waitForURL('**marka=Porsche**');
+  await waitForRoute('**marka=Porsche**');
   check(
     'Brand filter results',
     (await page.locator('.catalog-grid .vehicle-card').count()) === 3,
@@ -119,7 +148,7 @@ try {
     .locator('.desktop-filters')
     .getByRole('button', { name: 'Elektrik', exact: true })
     .click();
-  await page.waitForURL('**yakit=Elektrik**');
+  await waitForRoute('**yakit=Elektrik**');
   check(
     'Combined filtering',
     (await page.locator('.catalog-grid .vehicle-card').count()) === 1,
@@ -138,11 +167,29 @@ try {
     await page.locator('.catalog-grid.list-view').isVisible(),
   );
   await page.locator('.detail-link').first().click();
-  await page.waitForURL('**/araclar/porsche-**');
+  await waitForRoute('**/araclar/porsche-**');
   check(
     'Detail retains locations',
     (await page.locator('#detail-dropoff').innerText()).includes('Ankara'),
   );
+  await page.getByRole('link', { name: 'Kataloğa dön', exact: true }).click();
+  await waitForRoute('**/araclar?**');
+  check(
+    'Catalog return preserves brand and view',
+    new URL(page.url()).searchParams.get('marka') === 'Porsche' &&
+      (await page.locator('.catalog-grid.list-view').isVisible()),
+  );
+  await page.locator('.detail-link').first().click();
+  await page.locator('#detail-from').waitFor();
+  await page
+    .getByRole('button', { name: 'Rezervasyona Devam Et', exact: true })
+    .click();
+  check(
+    'Incompatible return location is blocked',
+    (await page.locator('#detail-dropoff').getAttribute('aria-invalid')) ===
+      'true',
+  );
+  await choose('detail-dropoff', 'İstanbul Merkez');
   const detailTotal = await page
     .locator('.sticky-booking .total-line b')
     .innerText();
@@ -165,7 +212,7 @@ try {
   await page
     .getByRole('button', { name: 'Rezervasyona Devam Et', exact: true })
     .click();
-  await page.waitForURL('**/rezervasyon?**');
+  await waitForRoute('**/rezervasyon?**');
   check(
     'New explicit vehicle overrides old draft',
     (await page.locator('#flow-vehicle').innerText()).includes('Porsche'),
@@ -178,7 +225,9 @@ try {
   await page.getByRole('button', { name: 'Devam Et', exact: true }).click();
   check(
     'Booking location preserved',
-    (await page.locator('#flow-dropoff').innerText()).includes('Ankara'),
+    (await page.locator('#flow-dropoff').innerText()).includes(
+      'İstanbul Merkez',
+    ),
   );
   await page.getByRole('button', { name: 'Devam Et', exact: true }).click();
   await page.getByRole('button', { name: /Çocuk koltuğu/ }).click();
@@ -186,10 +235,14 @@ try {
   await page
     .getByRole('button', { name: 'Demoyu Tamamla', exact: true })
     .click();
-  check('Inline validation', (await page.getByRole('alert').count()) === 3);
+  check(
+    'Inline validation including driver declaration',
+    (await page.getByRole('alert').count()) === 4,
+  );
   await page.getByLabel('AD SOYAD', { exact: false }).fill('Demo Kullanıcı');
   await page.getByLabel('TELEFON', { exact: false }).fill('05550000000');
   await page.getByLabel('E-POSTA', { exact: false }).fill('demo@example.test');
+  await page.locator('#eligible').check();
   check(
     'Contact data not persisted',
     !(
@@ -208,7 +261,13 @@ try {
   );
   await visit('/araclar');
   await page.locator('.catalog-search input').fill('BMW');
-  await page.waitForURL('**q=BMW**');
+  await waitForRoute('**q=BMW**');
+  check(
+    'Search keeps keyboard focus after URL update',
+    await page
+      .locator('.catalog-search input')
+      .evaluate((el) => el === document.activeElement),
+  );
   await page.waitForFunction(
     () => document.querySelectorAll('.catalog-grid .vehicle-card').length === 3,
   );
@@ -217,7 +276,7 @@ try {
     (await page.locator('.catalog-grid .vehicle-card').count()) === 3,
   );
   await page.locator('.catalog-search input').fill('xyz-no-model');
-  await page.waitForURL('**q=xyz-no-model**');
+  await waitForRoute('**q=xyz-no-model**');
   await page
     .getByRole('heading', { name: 'Eşleşen araç bulunamadı.' })
     .waitFor();
@@ -237,10 +296,56 @@ try {
   await page
     .getByRole('slider', { name: 'Minimum günlük fiyat', exact: true })
     .press('ArrowRight');
-  await page.waitForURL('**min=11000**');
+  await waitForRoute('**min=11000**');
   check(
     'Keyboard price range updates URL',
     new URL(page.url()).searchParams.get('min') === '11000',
+  );
+  await visit('/araclar');
+  await page
+    .locator('.catalog-search input')
+    .pressSequentially('   BMW   ', { delay: 15 });
+  await page
+    .locator('.desktop-filters')
+    .getByRole('button', { name: 'Elektrik', exact: true })
+    .click();
+  await waitForRoute(
+    (url) =>
+      url.searchParams.get('q') === 'BMW' &&
+      url.searchParams.get('yakit') === 'Elektrik',
+  );
+  check(
+    'Fast search and filter preserve both values',
+    (await page.locator('.catalog-grid .vehicle-card').count()) === 1,
+  );
+  await visit('/araclar?q=BMW');
+  await page
+    .getByRole('button', { name: 'Liste görünümü', exact: true })
+    .click();
+  await waitForRoute('**view=list**');
+  await page.locator('.catalog-search input').fill('Porsche');
+  await waitForRoute('**q=Porsche**');
+  await page.goBack();
+  await waitForRoute((url) => url.searchParams.get('q') === 'BMW');
+  await page.waitForFunction(
+    () => document.querySelector('.catalog-search input').value === 'BMW',
+  );
+  check(
+    'Back restores visible search text',
+    (await page.locator('.catalog-search input').inputValue()) === 'BMW',
+  );
+  await page.locator('.catalog-search input').fill('Porsche');
+  await page
+    .getByRole('button', { name: 'Liste görünümü', exact: true })
+    .click();
+  await waitForRoute(
+    (url) =>
+      url.searchParams.get('q') === 'Porsche' &&
+      url.searchParams.get('view') === 'list',
+  );
+  check(
+    'Fast search and view preserve both values',
+    (await page.locator('.catalog-search input').inputValue()) === 'Porsche',
   );
   await visit('/araclar');
   await page.locator('.favorite').nth(0).click();
@@ -258,10 +363,23 @@ try {
     'Comparison max three',
     await page.locator('.compare-check input').nth(3).isDisabled(),
   );
+  await page.reload({ waitUntil: 'networkidle' });
+  check(
+    'Comparison selections persist after refresh',
+    (await page.locator('.compare-check input:checked').count()) === 3,
+  );
   await page.locator('.favorite').nth(0).click();
   check(
     'Removing favorite also removes comparison',
     (await page.locator('.compare-table thead th').count()) === 3,
+  );
+  check(
+    'Removed comparison is cleaned from storage',
+    (
+      await page.evaluate(() =>
+        JSON.parse(localStorage.getItem('vanta-compare')),
+      )
+    ).length === 2,
   );
   await visit('/');
   await page.locator('#fleet').scrollIntoViewIfNeeded();
@@ -322,7 +440,7 @@ try {
     .locator('.filter-drawer')
     .getByRole('button', { name: 'Electric', exact: true })
     .click();
-  await page.waitForURL('**sinif=Electric**');
+  await waitForRoute('**sinif=Electric**');
   await page
     .locator('.filter-drawer')
     .getByText('6 araç eşleşiyor', { exact: true })
@@ -365,8 +483,13 @@ try {
       const date = new Date();
       date.setDate(date.getDate() + 1);
       await form
-        .getByLabel('TARİH', { exact: true })
-        .fill(date.toISOString().slice(0, 10));
+        .getByLabel('TARİH / SAAT (TR)', { exact: true })
+        .fill(date.toISOString().slice(0, 10) + 'T12:00');
+      await form
+        .getByLabel('BAŞLANGIÇ', { exact: true })
+        .fill('İstanbul Havalimanı');
+      await form.getByLabel('VARIŞ', { exact: true }).fill('Levent');
+      await form.getByLabel('UÇUŞ NUMARASI', { exact: true }).fill('TK1234');
     }
     await form.getByLabel('TELEFON').fill('05550000000');
     await form.getByLabel('E-POSTA').fill('demo@example.test');

@@ -13,8 +13,8 @@
     "format": "oxfmt",
     "typecheck": "tsc --noEmit",
     "test": "node scripts/check-booking.mjs",
-    "test:ui": "node scripts/check-ui.mjs",
-    "test:layout": "node scripts/browser-qa.mjs",
+    "test:ui": "node scripts/check-ui.mjs && node scripts/check-journeys.mjs",
+    "test:layout": "node scripts/browser-qa.mjs && node scripts/check-quality.mjs",
     "format:check": "oxfmt --check",
     "check": "npm run typecheck && npm run lint && npm test",
     "assets:prepare": "node scripts/prepare-images.mjs"
