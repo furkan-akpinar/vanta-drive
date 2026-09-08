@@ -124,80 +124,97 @@ vanta-drive/
 └── tsconfig.json
 
 ```
-Vehicle Collection
+## Vehicle Collection
 
-The project includes a curated premium fleet featuring vehicles from brands such as:
+The project features a curated premium fleet built around luxury, performance and executive mobility.
 
-Porsche · Mercedes-Benz · BMW · Audi · Range Rover · Tesla · Volvo
+### Featured Brands
+- **Porsche**
+- **Mercedes-Benz**
+- **BMW**
+- **Audi**
+- **Range Rover**
+- **Tesla**
+- **Volvo**
 
-Vehicle categories include:
+### Vehicle Categories
+- **Luxury**
+- **Performance**
+- **Sports**
+- **SUV**
+- **Executive**
+- **Electric**
+- **Convertible**
 
-Luxury · Performance · Sports · SUV · Executive · Electric · Convertible
+---
 
-Design Approach
+## Design Approach
 
-VANTA Drive was designed around a restrained premium visual language rather than a traditional rental marketplace appearance.
+VANTA Drive was designed as a **premium digital experience** rather than a conventional rental marketplace.
 
-The interface uses:
+### Core Design Principles
+- Large-format automotive imagery
+- Strong typography hierarchy
+- Dark luxury-oriented presentation
+- Minimal visual noise
+- Spacious layouts
+- High-contrast interface elements
+- Smooth content transitions
+- Responsive interaction patterns
 
-Large-format automotive imagery
-Strong typography hierarchy
-Dark luxury-oriented presentation
-Minimal visual noise
-Spacious layouts
-High-contrast UI elements
-Smooth content transitions
-Responsive interaction patterns
+The goal was to create an experience that feels closer to a **premium automotive brand website** while still preserving the functional structure of a rental platform.
 
-The goal was to make the experience feel closer to a premium automotive brand website while maintaining the structure required for a rental platform.
+---
 
-Responsive Design
+## Responsive Design
 
-The project is designed to adapt across:
+The interface is optimized for a consistent experience across all major device sizes.
 
-Desktop
-Laptop
-Tablet
-Mobile
+### Supported Viewports
+- Desktop
+- Laptop
+- Tablet
+- Mobile
 
-Navigation, vehicle cards, booking controls, media, typography and content layouts are adjusted for different viewport sizes.
+### Responsive Considerations
+- Adaptive navigation structure
+- Flexible content spacing
+- Responsive vehicle cards
+- Mobile-friendly booking controls
+- Scalable imagery and media
+- Readable typography across breakpoints
 
-Getting Started
+---
 
-Clone the repository:
+## Getting Started
 
+Follow the steps below to run the project locally.
+
+### 1. Clone the repository
+
+```bash
 git clone https://github.com/furkan-akpinar/vanta-drive.git
-
-Navigate to the project:
-
+2. Navigate into the project folder
 cd vanta-drive
-
-Install dependencies:
-
+3. Install dependencies
 npm install
-
-Start the development server:
-
+4. Start the development server
 npm run dev
 
 Then open:
 
 http://localhost:3000
-
 Environment Variables
 
-If environment variables are required, copy the example file:
+If environment variables are required, create a local environment file from the example below:
 
 cp .env.example .env.local
 
-Then configure the required values inside .env.local.
+Then update .env.local with the required values.
 
-Environment files containing private credentials are excluded from Git.
+Private environment files are excluded from Git.
 
-Development
-
-Useful commands:
-
+Available Scripts
 npm run dev
 npm run build
 npm run start
@@ -206,15 +223,14 @@ Asset Credits
 Third-party media sources and asset references used during development are documented in:
 
 ASSET-SOURCES.md
-Status
+Project Status
 
 Portfolio Project
-
-The project is actively maintained as part of my frontend and web development portfolio.
+This project is actively maintained as part of my frontend and web development portfolio.
 
 Author
-Furkan Akpınar
 
+Furkan Akpınar
 Frontend / Web Developer
 
 GitHub: @furkan-akpinar
