@@ -1,95 +1,219 @@
-# VANTA DRIVE
+# VANTA Drive
 
-Premium araç kiralama deneyimi için çok sayfalı bir portföy projesi. Araç kataloğu, karşılaştırma ve dört adımlı rezervasyon akışı içerir.
+<p align="center">
+  <strong>Premium car rental experience built with Next.js, TypeScript and a detail-focused responsive interface.</strong>
+</p>
 
-**Furkan Akpınar**
+<p align="center">
+  A portfolio project focused on premium automotive presentation, modern UI/UX and responsive web development.
+</p>
 
-![VANTA DRIVE](public/images/hero-vanta.webp)
+---
 
-## Kurulum
+## Preview
 
-Node.js 22.13 veya üzeri ve npm gerekir.
+<p align="center">
+  <img
+    src="./public/images/hero-vanta.webp"
+    alt="VANTA Drive Preview"
+    width="100%"
+  />
+</p>
 
-```sh
-npm ci
+> Live Demo: Coming soon
+
+---
+
+## About the Project
+
+**VANTA Drive** is a premium car rental website concept designed to deliver a polished and modern digital experience for luxury vehicle rental.
+
+The project combines an editorial automotive aesthetic with a functional rental experience, including vehicle discovery, filtering, reservation flows, location pages and detailed vehicle presentations.
+
+The main focus of the project is visual quality, responsive behavior, reusable components and a clean frontend architecture.
+
+---
+
+## Features
+
+- Premium automotive-focused user interface
+- Responsive desktop, tablet and mobile layouts
+- Full-screen video hero experience
+- Luxury vehicle catalog
+- Vehicle category browsing
+- Individual vehicle detail pages
+- Reservation interface
+- Pickup and return date selection
+- Location-based rental pages
+- Favorites system
+- Vehicle filtering and catalog controls
+- Airport delivery page
+- Chauffeur rental page
+- Corporate rental content
+- Rental packages
+- FAQ section
+- Contact page
+- Privacy and legal pages
+- Custom loading and error states
+- SEO-ready sitemap and robots configuration
+- Reusable UI component architecture
+- Optimized WebP image assets
+- Separate desktop and mobile hero video assets
+
+---
+
+## Tech Stack
+
+| Technology | Usage |
+|---|---|
+| **Next.js** | Application framework |
+| **React** | Component-based UI |
+| **TypeScript** | Type-safe development |
+| **CSS** | Custom responsive styling |
+| **Vite** | Supporting development tooling |
+| **GitHub Actions** | Continuous integration |
+| **WebP / MP4** | Optimized visual assets |
+
+---
+
+## Project Structure
+
+```text
+vanta-drive/
+│
+├── app/
+│   ├── araclar/
+│   ├── favoriler/
+│   ├── hakkimizda/
+│   ├── havalimani-teslimati/
+│   ├── iletisim/
+│   ├── kiralama-kosullari/
+│   ├── kurumsal/
+│   ├── lokasyonlar/
+│   ├── paketler/
+│   ├── rezervasyon/
+│   ├── soforlu-kiralama/
+│   └── sss/
+│
+├── components/
+│   ├── ui/
+│   ├── booking-console.tsx
+│   ├── booking-flow.tsx
+│   ├── fleet-carousel.tsx
+│   ├── hero-video.tsx
+│   ├── site-shell.tsx
+│   ├── vehicle-card.tsx
+│   ├── vehicle-catalog.tsx
+│   └── vehicle-detail.tsx
+│
+├── data/
+│   ├── classes.ts
+│   ├── content.ts
+│   └── vehicles.ts
+│
+├── hooks/
+├── lib/
+├── public/
+│   ├── assets/
+│   ├── fonts/
+│   └── images/
+│
+├── scripts/
+├── package.json
+├── next.config.ts
+└── tsconfig.json
+
+Vehicle Collection
+
+The project includes a curated premium fleet featuring vehicles from brands such as:
+
+Porsche · Mercedes-Benz · BMW · Audi · Range Rover · Tesla · Volvo
+
+Vehicle categories include:
+
+Luxury · Performance · Sports · SUV · Executive · Electric · Convertible
+
+Design Approach
+
+VANTA Drive was designed around a restrained premium visual language rather than a traditional rental marketplace appearance.
+
+The interface uses:
+
+Large-format automotive imagery
+Strong typography hierarchy
+Dark luxury-oriented presentation
+Minimal visual noise
+Spacious layouts
+High-contrast UI elements
+Smooth content transitions
+Responsive interaction patterns
+
+The goal was to make the experience feel closer to a premium automotive brand website while maintaining the structure required for a rental platform.
+
+Responsive Design
+
+The project is designed to adapt across:
+
+Desktop
+Laptop
+Tablet
+Mobile
+
+Navigation, vehicle cards, booking controls, media, typography and content layouts are adjusted for different viewport sizes.
+
+Getting Started
+
+Clone the repository:
+
+git clone https://github.com/furkan-akpinar/vanta-drive.git
+
+Navigate to the project:
+
+cd vanta-drive
+
+Install dependencies:
+
+npm install
+
+Start the development server:
+
 npm run dev
-```
 
-Uygulama `http://localhost:3000` adresinde açılır.
+Then open:
 
-## Özellikler
+http://localhost:3000
 
-- 20 araç ve 8 araç sınıfı; marka, yakıt, vites, koltuk, fiyat ve lokasyon filtreleri.
-- URL üzerinden paylaşılabilen arama, sıralama ve filtre tercihleri.
-- Dokunmatik ve klavye destekli araç vitrini.
-- Tarayıcıda saklanan favoriler ve en fazla üç araç karşılaştırması.
-- Ortak tarih, lokasyon ve fiyat hesabı kullanan rezervasyon adımları.
-- Mobil menü, filtre paneli ve hareket azaltma tercihine uyumlu animasyonlar.
+Environment Variables
 
-Proje bir arayüz demosudur. Formlar gerçek rezervasyon oluşturmaz, ödeme almaz veya bilgi göndermez. Rezervasyon taslağında yalnızca araç ve seyahat tercihleri tutulur; iletişim bilgileri kalıcı olarak saklanmaz.
+If environment variables are required, copy the example file:
 
-## Teknoloji
+cp .env.example .env.local
 
-React 19, TypeScript, Vinext, Vite, Tailwind CSS, Base UI / shadcn, Embla ve Framer Motion. Üretim sunucusu Cloudflare Workers hedefiyle derlenir.
+Then configure the required values inside .env.local.
 
-| Dizin            | İçerik                                               |
-| ---------------- | ---------------------------------------------------- |
-| `app/`           | Sayfalar, metadata ve stiller                        |
-| `components/`    | Site bileşenleri ve rezervasyon adımları             |
-| `components/ui/` | Kullanılan ortak arayüz bileşenleri                  |
-| `data/`          | Araçlar, sınıflar, lokasyonlar ve ek hizmetler       |
-| `lib/`           | Fiyat hesabı, taslak doğrulama ve katalog filtreleri |
-| `hooks/`         | Ortak React hook'ları                                |
-| `scripts/`       | Kontroller ve görsel hazırlama                       |
-| `public/`        | Yerel görseller, video ve fontlar                    |
+Environment files containing private credentials are excluded from Git.
 
-Fiyatların kaynağı `data/vehicles.ts` dosyasıdır. En az 24 saat kiralama yapılır; başlanan ek gün tam güne yuvarlanır. 1–6 gün günlük, 7–29 gün haftalık fiyatın yedide biri, 30 gün ve üzeri aylık fiyatın otuzda biri kullanılır. Ek hizmetler günlük veya tek seferlik ücretlendirilir.
+Development
 
-## Kontroller
+Useful commands:
 
-```sh
-npm run check
-npm run format:check
-npm run build
-```
-
-`check`, TypeScript, lint ve rezervasyon/katalog kontrollerini sırasıyla çalıştırır. GitHub Actions aynı kontrolleri, biçim denetimini ve üretim derlemesini her push ve pull request için çalıştırır.
-
-Tarayıcı kontrolleri için Chromium'u kurun ve uygulamayı ayrı bir terminalde başlatın:
-
-```sh
-npx playwright install chromium
 npm run dev
-```
-
-Ardından ikinci terminalde:
-
-```sh
-npm run test:ui
-npm run test:layout
-```
-
-Betikler varsayılan olarak `http://localhost:3000` adresini kullanır. Farklı bir sunucu için `BASE_URL` ortam değişkenini ayarlayın. Ekran görüntüleri ve raporlar Git dışında tutulan `outputs/qa/` dizinine yazılır.
-
-## Üretim çıktısı
-
-```sh
 npm run build
-npm start
-```
+npm run start
+Asset Credits
 
-Derleme `dist/client` ve `dist/server` dizinlerini oluşturur. `npm start` bu çıktıyı Wrangler ile yerel olarak çalıştırır. Bu depo kaynak kodu paylaşımı için hazırlanmıştır; mevcut sunucu çıktısı GitHub Pages'e doğrudan yüklenemez.
+Third-party media sources and asset references used during development are documented in:
 
-Sitemap için `NEXT_PUBLIC_SITE_URL` ortam değişkenine yayın adresi verilebilir. Örnek değişkenler `.env.example` dosyasındadır.
+ASSET-SOURCES.md
+Status
 
-## Görseller
+Portfolio Project
 
-Görseller ve hero videosu projeyle birlikte gelir. Kaynaklar, düzenleme bilgileri ve atıflar [ASSET-SOURCES.md](ASSET-SOURCES.md) dosyasındadır. Araç bilgileri ve görseller konsept sunum içindir.
+The project is actively maintained as part of my frontend and web development portfolio.
 
-Yeni PNG/JPEG kaynaklarından 1600 ve 800 piksel genişliğinde WebP dosyaları hazırlamak için:
+Author
+Furkan Akpınar
 
-```sh
-npm run assets:prepare -- ./source-images
-```
+Frontend / Web Developer
 
-Dosya adları korunur; küçük sürüme `-800` eki eklenir. Kaynak klasöründeki dosyalar değiştirilmez. Komut aynı adlı hedef dosyaları günceller.
+GitHub: @furkan-akpinar
