@@ -112,6 +112,8 @@ Son doğrulama sonuçları ve ortam kısıtları: [revizyon kaydı](docs/REVISIO
 
 ## Yayın
 
+Son yayın: mobil menü hizalama düzeltmesi, kaynak `d061c56edb855914a3f98c2a61b633037ea4e0cd`, Cloudflare sürümü `b95e21dd-dc00-48df-aa9b-d2f458a9be85`. [Yayın öncesi CI başarılı](https://github.com/furkan-akpinar/vanta-drive/actions/runs/34253386266). Aynı Worker, adres ve Private GitHub deposu korunur. Sonraki belge/CI kaydı commit'leri yayınlanan uygulama kodunu değiştirmez.
+
 İlk yayın 8 Eylül 2026'da Cloudflare Workers'a yapıldı. Worker: `vanta-drive`; hesap workers.dev alt alanı: `furkan-akpinar`. Kaynak commit: `fe7b5b58d0ab2e5ab70d895754b464ae8b679d8e`; Cloudflare sürüm kimliği: `0ca0d63a-765c-4825-9033-eb9848ecdcb7`. Yayın öncesinde hesapta başka Worker bulunmadığı doğrulandı. Sonraki yayın belgeleri ve canlı test ekleri uygulama kodunu değiştirmez.
 
 `dist/server/index.js` Workers girişidir; `dist/client` statik dosyalardır. Hem yerel üretim önizlemesi hem yayın **derlemenin ürettiği** `dist/server/wrangler.json` ile çalışır. Vinext/Vite–Cloudflare yapılandırması korunur; GitHub Pages veya ayrı bir Sites projesi kullanılmaz.
@@ -155,7 +157,7 @@ npm.cmd run test:ui
 if ($LASTEXITCODE -ne 0) { throw 'Canlı demo yolculukları başarısız.' }
 ```
 
-`check-live.mjs` gerçek yayın adresinde 39 sitemap rotasını, rezervasyon/favoriler dahil 41 sayfayı, üç 404'ü, canonical ve paylaşım metadata'sını, 20 araç görsel eşlemesini, medyayı ve beş sayfanın 1440/390 px görünümünü denetler. Görüntü ve JSON kayıtları `outputs/live` altında oluşur. Revizyon dalındaki push'larda [Checks iş akışının](https://github.com/furkan-akpinar/vanta-drive/actions/workflows/ci.yml?query=branch%3Acodex%2Fvanta-drive-revision) `live` işi aynı kontrolleri ve mevcut demo yolculuklarını GitHub'ın çalıştırıcısında yürütür; `live-browser-qa` artifact'i kanıtları saklar. CI canlı yayın yapmaz.
+`check-live.mjs` gerçek yayın adresinde 39 sitemap rotasını, rezervasyon/favoriler dahil 41 sayfayı, üç 404'ü, canonical ve paylaşım metadata'sını, 20 araç görsel eşlemesini, medyayı ve beş sayfanın 1440/390 px görünümünü denetler. Görüntü ve JSON kayıtları `outputs/live` altında oluşur. Revizyon dalındaki push'larda [Checks iş akışının](https://github.com/furkan-akpinar/vanta-drive/actions/workflows/ci.yml?query=branch%3Acodex%2Fvanta-drive-revision) `live` işi aynı kontrolleri, mevcut demo yolculuklarını ve Chromium/WebKit menü regresyonunu GitHub'ın çalıştırıcısında yürütür; `live-browser-qa` artifact'i kanıtları saklar. CI canlı yayın yapmaz.
 
 İlk yayında bu bilgisayarın Türk Telekom Güvenli İnternet bağlantısı workers.dev isteğini engelleme sayfasına yönlendirdi; yerel HTTPS kontrolleri TLS hatasıyla durdu. Bu denemeler geçerli kabul testi sayılmaz. Ağ ayarları değiştirilmedi; uzaktan erişim ve mobil/masaüstü kabul kontrolünün sonucu Actions'taki ayrı `live` işinden okunmalıdır.
 

@@ -62,11 +62,15 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install --with-deps chromium webkit
       - name: Verify public routes, metadata, media and responsive pages
         run: node scripts/check-live.mjs
       - name: Exercise desktop and mobile demo journeys on the live Worker
         run: npm run test:ui
+      - name: Verify the published menu in Chromium and WebKit
+        run: node scripts/check-menu.mjs
+        env:
+          MENU_BROWSERS: chromium,webkit
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -74,3 +78,4 @@ jobs:
           path: |
             outputs/live
             outputs/qa
+            outputs/menu
