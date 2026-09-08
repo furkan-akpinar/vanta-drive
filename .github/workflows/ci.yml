@@ -20,7 +20,7 @@ jobs:
       - run: npm run check
       - run: npm run format:check
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install --with-deps chromium webkit
       - name: Start production Worker and wait for readiness
         run: |
           npm run start -- --port 3001 > /tmp/vanta-worker.log 2>&1 &
@@ -33,6 +33,11 @@ jobs:
       - run: npm run test:ui
         env:
           BASE_URL: http://127.0.0.1:3001
+      - name: Verify menu geometry, scrolling and focus in Chromium and WebKit
+        run: node scripts/check-menu.mjs
+        env:
+          BASE_URL: http://127.0.0.1:3001
+          MENU_BROWSERS: chromium,webkit
       - run: npm run test:layout
         env:
           BASE_URL: http://127.0.0.1:3001
@@ -40,7 +45,9 @@ jobs:
         if: always()
         with:
           name: browser-qa
-          path: outputs/qa
+          path: |
+            outputs/qa
+            outputs/menu
 
   live:
     if: github.ref == 'refs/heads/codex/vanta-drive-revision'

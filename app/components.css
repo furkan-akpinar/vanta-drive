@@ -243,30 +243,30 @@ button:disabled {
   display: none;
 }
 .garage-panel[data-slot='dialog-content'] {
+  --panel-gutter: clamp(20px, 4vw, 64px);
   position: fixed;
   z-index: 130;
   inset: 0;
-  translate: none;
-  transform: none;
   width: 100%;
   max-width: none;
+  height: 100vh;
   height: 100dvh;
   border: 0;
   border-radius: 0;
   background: #0c0e12;
   color: white;
-  padding: clamp(20px, 4vw, 64px);
-  display: block;
-  overflow: auto;
+  padding: max(var(--panel-gutter), env(safe-area-inset-top, 0px))
+    max(var(--panel-gutter), env(safe-area-inset-right, 0px))
+    max(var(--panel-gutter), env(safe-area-inset-bottom, 0px))
+    max(var(--panel-gutter), env(safe-area-inset-left, 0px));
+  display: flex;
+  flex-direction: column;
   animation: none;
-  transition:
-    opacity 0.2s var(--ease),
-    transform 0.2s var(--ease);
+  transition: opacity 0.2s var(--ease);
 }
 .garage-panel[data-starting-style],
 .garage-panel[data-ending-style] {
   opacity: 0;
-  transform: translateY(-8px);
 }
 [data-slot='dialog-overlay'],
 [data-slot='drawer-overlay'] {
@@ -281,6 +281,7 @@ button:disabled {
   z-index: 180;
 }
 .panel-head {
+  flex-shrink: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -289,7 +290,14 @@ button:disabled {
   padding-bottom: 22px;
 }
 .panel-links {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  width: 100%;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
   display: grid;
+  align-content: start;
   grid-template-columns: 1.5fr 1fr;
   gap: clamp(28px, 6vw, 100px);
   max-width: 1400px;
@@ -2078,10 +2086,10 @@ button:disabled {
     max-width: none;
   }
 }
-@media (max-width: 760px) {
+@media (max-width: 760px),
+  (max-width: 1024px) and (max-height: 500px) and (pointer: coarse) {
   :root {
     --rail-width: 0px;
-    --gutter: 22px;
   }
   html {
     scroll-padding-top: 84px;
@@ -2140,8 +2148,13 @@ button:disabled {
   .skip-link {
     left: 20px;
   }
+}
+@media (max-width: 760px) {
+  :root {
+    --gutter: 22px;
+  }
   .garage-panel[data-slot='dialog-content'] {
-    padding: 20px;
+    --panel-gutter: 20px;
   }
   .panel-head .eyebrow {
     font-size: 10px;

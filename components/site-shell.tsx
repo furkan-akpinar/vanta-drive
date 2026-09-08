@@ -120,7 +120,11 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
         {message}
         {message && <Link href="/favoriler">Favoriler ve karşılaştırma</Link>}
       </output>
-      <DialogContent className="garage-panel" showCloseButton={false}>
+      <DialogContent
+        className="garage-panel"
+        layout="fullscreen"
+        showCloseButton={false}
+      >
         <div className="panel-head">
           <span className="monogram">VD</span>
           <DialogTitle className="eyebrow">ROTANIZI SEÇİN</DialogTitle>

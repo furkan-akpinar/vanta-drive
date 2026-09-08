@@ -86,7 +86,7 @@ Talep üzerine araçların sonucu müsaitlik onayı vermez. Hukuki sayfalar ger�
 npm run check
 npm run format:check
 npm run build
-npx playwright install chromium
+npx playwright install chromium webkit
 ```
 
 Üretim sunucusu açıkken:
@@ -95,6 +95,8 @@ npx playwright install chromium
 $env:BASE_URL='http://127.0.0.1:3001'
 npm run test:ui
 npm run test:layout
+$env:MENU_BROWSERS='chromium,webkit'
+node scripts/check-menu.mjs
 ```
 
 POSIX: `BASE_URL=http://127.0.0.1:3001 npm run test:ui` (aynı değişkenle `test:layout`).
@@ -103,7 +105,8 @@ POSIX: `BASE_URL=http://127.0.0.1:3001 npm run test:ui` (aynı değişkenle `tes
 - `test:ui`: menü, takvim, klavye, gerçek dokunma, video kontrolü, filtreler, favoriler, karşılaştırma, formlar; 1440 ve 390 px Ankara/teslimat/talep akışları ve veri gizliliği.
 - `test:layout`: beş ana genişlik (320/390/768/1024/1440), bütün sayfa türleri; bütün araç/lokasyon detaylarında mobil ve masaüstü; bağlantılar, medya, 404; renk kontrastı, metin büyütme ve yatay görünüm. %200 yakınlaştırma eşdeğeri 720×450 CSS piksel / DPR 2 ile sınanır; yerel tarayıcı zoom komutu otomasyonu değildir.
 - Raporlar ve görüntüler `outputs/qa` altında üretilir, Git'e alınmaz. Seçili gerçek görüntüler `docs/screenshots` içindedir.
-- CI üretim çıktısını derler, Chromium kurar, Worker hazır olana kadar bekler, tarayıcı kapılarını çalıştırır ve raporları artifact olarak saklar.
+- `check-menu.mjs`: 320/360/390/430 px, 844×390 yatay mobil ve 1440×900 masaüstünde menü geometrisi, kaydırılmış sayfa, içerik kaydırması, arka sayfa kilidi, tekrar açma, Escape/Tab/odak dönüşü ve sayfa geçişi. Chromium dokunma girdisi ve güvenli alan benzetimi; mobil WebKit profilinde desteklenen klavye kaydırması. `MENU_BROWSERS` verilmezse yalnızca Chromium çalışır. Rapor ve görüntüler `outputs/menu` içindedir; fiziksel iOS/Android cihaz testi değildir.
+- CI üretim çıktısını derler, Chromium/WebKit kurar, Worker hazır olana kadar bekler, tarayıcı kapılarını çalıştırır ve raporları artifact olarak saklar.
 
 Son doğrulama sonuçları ve ortam kısıtları: [revizyon kaydı](docs/REVISION.md). Tasarım ve teknik kararlar: [proje incelemesi](docs/CASE-STUDY.md).
 
