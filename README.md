@@ -2,7 +2,7 @@
 
 Türkçe premium araç kiralama portföy demosu. Yirmi konsept araç; URL ile filtreleme, favoriler ve karşılaştırma, dört adımlı rezervasyon ve örnek hizmet formları.
 
-**Canlı demo:** [vanta-drive.furkan-akpinar.workers.dev](https://vanta-drive.furkan-akpinar.workers.dev). Cloudflare Workers üzerinde herkese açık yayın; GitHub deposu Private kalır.
+**Canlı demo:** [vanta-drive.furkan-akpinar.workers.dev](https://vanta-drive.furkan-akpinar.workers.dev). Cloudflare Workers üzerinde herkese açık yayın. GitHub deposu mobil menü görevinin başlangıcında Public olarak doğrulandı; bu görevde görünürlüğü değiştirilmedi.
 
 ## Gerçek uygulama görüntüleri
 
@@ -112,7 +112,7 @@ Son doğrulama sonuçları ve ortam kısıtları: [revizyon kaydı](docs/REVISIO
 
 ## Yayın
 
-Son yayın: mobil menü hizalama düzeltmesi, kaynak `d061c56edb855914a3f98c2a61b633037ea4e0cd`, Cloudflare sürümü `b95e21dd-dc00-48df-aa9b-d2f458a9be85`. [Yayın öncesi CI başarılı](https://github.com/furkan-akpinar/vanta-drive/actions/runs/34253386266). Aynı Worker, adres ve Private GitHub deposu korunur. Sonraki belge/CI kaydı commit'leri yayınlanan uygulama kodunu değiştirmez.
+Son yayın: mobil menü hizalama düzeltmesi, kaynak `d061c56edb855914a3f98c2a61b633037ea4e0cd`, Cloudflare sürümü `b95e21dd-dc00-48df-aa9b-d2f458a9be85`. [Yayın öncesi CI başarılı](https://github.com/furkan-akpinar/vanta-drive/actions/runs/34253386266). Aynı Worker, adres ve görevin başlangıcındaki Public repo görünürlüğü korunur. Sonraki belge/CI kaydı commit'leri yayınlanan uygulama kodunu değiştirmez.
 
 İlk yayın 8 Eylül 2026'da Cloudflare Workers'a yapıldı. Worker: `vanta-drive`; hesap workers.dev alt alanı: `furkan-akpinar`. Kaynak commit: `fe7b5b58d0ab2e5ab70d895754b464ae8b679d8e`; Cloudflare sürüm kimliği: `0ca0d63a-765c-4825-9033-eb9848ecdcb7`. Yayın öncesinde hesapta başka Worker bulunmadığı doğrulandı. Sonraki yayın belgeleri ve canlı test ekleri uygulama kodunu değiştirmez.
 
