@@ -2,7 +2,7 @@
 
 Türkçe premium araç kiralama portföy demosu. Yirmi konsept araç; URL ile filtreleme, favoriler ve karşılaştırma, dört adımlı rezervasyon ve örnek hizmet formları.
 
-**Canlı yayın:** Henüz doğrulanmış bir yayın adresi yok. Bu revizyonda yeni yayın projesi veya alan adı oluşturulmadı.
+**Canlı demo:** [vanta-drive.furkan-akpinar.workers.dev](https://vanta-drive.furkan-akpinar.workers.dev). Cloudflare Workers üzerinde herkese açık yayın; GitHub deposu Private kalır.
 
 ## Gerçek uygulama görüntüleri
 
@@ -109,9 +109,52 @@ Son doğrulama sonuçları ve ortam kısıtları: [revizyon kaydı](docs/REVISIO
 
 ## Yayın
 
-`dist/server/index.js` Workers girişidir; `dist/client` statik dosyalardır. Üretilen `dist/server/wrangler.json` yerel üretim önizlemesinde kullanılır. Kaynak GitHub deposunda bulunması GitHub Pages gerektirmez.
+İlk yayın 8 Eylül 2026'da Cloudflare Workers'a yapıldı. Worker: `vanta-drive`; hesap workers.dev alt alanı: `furkan-akpinar`. Kaynak commit: `fe7b5b58d0ab2e5ab70d895754b464ae8b679d8e`; Cloudflare sürüm kimliği: `0ca0d63a-765c-4825-9033-eb9848ecdcb7`. Yayın öncesinde hesapta başka Worker bulunmadığı doğrulandı. Sonraki yayın belgeleri ve canlı test ekleri uygulama kodunu değiştirmez.
 
-Bu kaynakta `.openai/hosting.json` yoktur ve erişilebilir mevcut Sites projesi bulunamamıştır. Yayın için mevcut hedefin doğrulanması veya yeni hedefin kullanıcı tarafından belirlenmesi gerekir. Otomatik olarak yeni hesap, ücretli servis veya alan adı oluşturulmaz.
+`dist/server/index.js` Workers girişidir; `dist/client` statik dosyalardır. Hem yerel üretim önizlemesi hem yayın **derlemenin ürettiği** `dist/server/wrangler.json` ile çalışır. Vinext/Vite–Cloudflare yapılandırması korunur; GitHub Pages veya ayrı bir Sites projesi kullanılmaz.
+
+Tekrar yayınlama (PowerShell; doğrulanmış revizyon dalında, bağımlılıklar kurulu ve çalışma ağacı temizken):
+
+```powershell
+git switch codex/vanta-drive-revision
+git pull --ff-only origin codex/vanta-drive-revision
+git status --short --branch
+git rev-parse HEAD
+npx.cmd wrangler login
+npx.cmd wrangler whoami
+
+$env:CLOUDFLARE_ACCOUNT_ID='ad296caa8366ac41c6b7770429d1ec3b'
+$env:NEXT_PUBLIC_SITE_URL='https://vanta-drive.furkan-akpinar.workers.dev'
+npm.cmd run check
+if ($LASTEXITCODE -ne 0) { throw 'Kaynak kontrolleri başarısız.' }
+npm.cmd run format:check
+if ($LASTEXITCODE -ne 0) { throw 'Biçim kontrolü başarısız.' }
+npm.cmd run build
+if ($LASTEXITCODE -ne 0) { throw 'Üretim derlemesi başarısız.' }
+$config = Get-Content -Raw dist/server/wrangler.json | ConvertFrom-Json
+if ($config.name -ne 'vanta-drive' -or $config.main -ne 'index.js' -or $config.assets.directory -ne '../client') {
+  throw 'Beklenmeyen Worker çıktısı.'
+}
+npx.cmd wrangler deploy --config dist/server/wrangler.json
+if ($LASTEXITCODE -ne 0) { throw 'Yayın başarısız.' }
+npx.cmd wrangler deployments list --config dist/server/wrangler.json
+```
+
+İlk klonda `npm.cmd ci` kullanılır; her yayın için yeniden kurulum gerekmez. `wrangler whoami` hesabı yukarıdaki hesapla eşleşmelidir. Mevcut oturum geçerliyse yeniden `login` gerekmez. Yayından önce Cloudflare panelindeki mevcut Worker/sürümün bu projeye ait olduğunu doğrulayın. Çalışan yerel Worker dosyaları kilitliyorsa kendi yerel önizleme sürecinizi durdurup yeniden derleyin. Üretilen yapılandırmayı elle değiştirmeyin; gerçek origin değişirse yeni origin ile yeniden derleyin. Kimlik bilgilerini kaynak, `.env.example` veya Git'e yazmayın.
+
+Yayın sonrasında:
+
+```powershell
+node scripts/check-live.mjs
+if ($LASTEXITCODE -ne 0) { throw 'Canlı sayfa kontrolleri başarısız.' }
+$env:BASE_URL='https://vanta-drive.furkan-akpinar.workers.dev'
+npm.cmd run test:ui
+if ($LASTEXITCODE -ne 0) { throw 'Canlı demo yolculukları başarısız.' }
+```
+
+`check-live.mjs` gerçek yayın adresinde 39 sitemap rotasını, rezervasyon/favoriler dahil 41 sayfayı, üç 404'ü, canonical ve paylaşım metadata'sını, 20 araç görsel eşlemesini, medyayı ve beş sayfanın 1440/390 px görünümünü denetler. Görüntü ve JSON kayıtları `outputs/live` altında oluşur. Revizyon dalındaki push'larda [Checks iş akışının](https://github.com/furkan-akpinar/vanta-drive/actions/workflows/ci.yml?query=branch%3Acodex%2Fvanta-drive-revision) `live` işi aynı kontrolleri ve mevcut demo yolculuklarını GitHub'ın çalıştırıcısında yürütür; `live-browser-qa` artifact'i kanıtları saklar. CI canlı yayın yapmaz.
+
+İlk yayında bu bilgisayarın Türk Telekom Güvenli İnternet bağlantısı workers.dev isteğini engelleme sayfasına yönlendirdi; yerel HTTPS kontrolleri TLS hatasıyla durdu. Bu denemeler geçerli kabul testi sayılmaz. Ağ ayarları değiştirilmedi; uzaktan erişim ve mobil/masaüstü kabul kontrolünün sonucu Actions'taki ayrı `live` işinden okunmalıdır.
 
 Doğrulanmış mutlak adres derleme ortamında `NEXT_PUBLIC_SITE_URL` değişkenine verilince canonical, metadata tabanı, paylaşım görselleri ve sitemap aynı kaynaktan üretilir. Adres tanımlı değilken sitemap boş kalır; canonical ve mutlak paylaşım görseli etiketi üretilmez. Böylece framework'ün otomatik `localhost` paylaşım adresi engellenir. Rezervasyon ve favoriler `noindex` kullanır; sitemap'te yer almaz. Her istekte değişen sahte içerik tarihi yoktur. Yayın adresi ayarlandığında araç paylaşım kartları ilgili aracın görselini kullanır; 20 araç için eşleme test edilir.
 

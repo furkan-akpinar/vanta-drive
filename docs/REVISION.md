@@ -70,8 +70,18 @@ Tam görsel matris, son görsel düzeltmelerden sonra tekrarlandı. Sonraki aram
 - Hata ve yükleme bileşenleri gözden geçirildi; video hatası, bozuk depolama, form hataları ve üç 404 tarayıcıda sınandı. Framework hata sınırına kasıtlı uygulama çökmesi enjekte edilmedi.
 - CI tanımı güncellendi; GitHub'a push yapılmadığı için uzak CI çalışması doğrulanmadı.
 
-## Yayın için zorunlu açık maddeler
+## İlk incelemedeki yayın maddeleri
 
 - Kaynakta Cloudflare Worker adı `vanta-drive` bulunur; bu ad tek başına hesap, yayın URL'si veya var olan proje kanıtı değildir. `.openai/hosting.json` yoktur, erişilebilir Sites listesi boştur. Kullanıcının mevcut hedefi veya yeni hedef tercihi gereklidir. Canlı yayın ve canlı kabul kontrolü yapılmadı.
 - Hedefin gerçek origin'i `NEXT_PUBLIC_SITE_URL` olarak derleme ortamına verilmelidir. Mevcut yerel çıktı canonical veya mutlak paylaşım görseli yayımlamaz. Testte kullanılan `preview.example.invalid` ayrılmış test verisidir, yayın adresi değildir.
 - İlk sekiz araç ve altı hizmet/hero görselinin bağımsız kaynak/lisans belgeleri eksiktir; önceki atıflar korunur, yeni sahiplik/lisans iddiası eklenmez. Kamusal portföy sunumu için bu varlıkların kullanım kaynağı doğrulanmalıdır.
+
+## 8 Eylül 2026 — Cloudflare ilk yayını
+
+- Kullanıcı herkese açık workers.dev yayınını açıkça yetkilendirdi. Mevcut Wrangler OAuth oturumu bu bilgisayarda doğrulandı; tek Cloudflare hesabı bulundu. Başlangıçta Worker listesi boştu ve hesap alt alanı yoktu. `furkan-akpinar.workers.dev` kaydedildi; sonraki bağımsız API sorgusu gerçek alt alanı doğruladı.
+- `origin`, Private GitHub deposu `furkan-akpinar/vanta-drive` ile eşleşti. Fetch sonrası yerel/uzak revizyon dalı SHA'sı `fe7b5b58d0ab2e5ab70d895754b464ae8b679d8e`; bu commit'in [uzak CI sonucu başarılı](https://github.com/furkan-akpinar/vanta-drive/actions/runs/34239517863). 201 takipli dosyada yasak çıktı/gerçek ortam dosyası veya taranan gizli anahtar örüntüsü bulunmadı. Örüntü taraması mutlak güvence değildir.
+- Kaynak ve bağımlılık değişikliği olmadan gerçek `NEXT_PUBLIC_SITE_URL=https://vanta-drive.furkan-akpinar.workers.dev` ile üretim derlemesi ve Wrangler dry-run başarılı. Çıktı `dist/server/wrangler.json`, giriş `index.js`, statik dizin `../client`, Worker adı `vanta-drive`; gerçek origin derlenmiş SEO modülünde doğrulandı.
+- İlk yayın: [VANTA DRIVE](https://vanta-drive.furkan-akpinar.workers.dev). Yayınlanan uygulama kaynağı `fe7b5b58d0ab2e5ab70d895754b464ae8b679d8e`; Cloudflare sürümü `0ca0d63a-765c-4825-9033-eb9848ecdcb7`. Wrangler yayın komutu exit 0; sunucu paketi 1.371,90 KiB / gzip 412,33 KiB; Worker başlangıcı 33 ms. Mevcut bir Worker'ın üzerine yazılmadı.
+- Yerel canlı Chromium ve HTTP testleri Türk Telekom Güvenli İnternet engeline takıldı. HTTP yanıtı `guvenliinternet.turktelekom.com.tr` yönlendirmesi, HTTPS sonucu TLS protokol hatasıydı. Bu denemeler başarılı sayılmadı; DNS, TLS veya ağ koruma ayarları değiştirilmedi.
+- Canlı test için `scripts/check-live.mjs` ve mevcut CI'ya ayrı `live` işi eklendi. GitHub'ın barındırılan çalıştırıcısı gerçek URL'deki rota, medya, SEO, mobil/masaüstü ve demo yolculuklarını denetler; JSON ve ekran görüntülerini `live-browser-qa` artifact'inde saklar. Gerçek sonuçlar [Checks kayıtlarında](https://github.com/furkan-akpinar/vanta-drive/actions/workflows/ci.yml?query=branch%3Acodex%2Fvanta-drive-revision) yer alır. Bu iş otomatik yayın yapmaz, uygulama kodunu veya bağımlılık sürümlerini değiştirmez.
+- README gerçek adresi, hesap seçimini, üretim çıktısının doğrulanmasını ve tekrar yayın adımlarını içerir. GitHub Private kalır; main'e birleştirme, force push, gerçek rezervasyon veya ödeme entegrasyonu yapılmaz.
